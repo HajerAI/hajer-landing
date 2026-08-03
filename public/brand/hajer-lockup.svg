@@ -1,0 +1,116 @@
+<!--
+  HAJER LOCKUP — standalone master (mark + two-tier wordmark).
+
+  The company is Hajer. `hajer.ai` is a domain, never the name, so the old
+  `Hajer` + vermilion period + mono `ai` wordmark is retired. What made that
+  wordmark work was never the dot; it was Geist Semibold set against tracked
+  JetBrains Mono. Tier 2 reproduces that same contrast and states the category
+  instead of naming a TLD. There is NO VERMILION IN THE WORDMARK. The mark's
+  candidate rail is the only colour in the lockup.
+
+  CONSTRUCTION — one number drives everything. Mark height h, base unit u = h/8.
+  Here h = 128, u = 16.
+    mark          160 x 128 (10u x 8u), translated down 16 so the text block
+                  and the mark share a vertical centre at y = 80
+    gap mark->wordmark   3u = 48   -> both text tiers start at x = 208
+    tier 1        h / 1.2      = 106.67, Geist 600, letter-spacing -0.03em (-3.2)
+    tier 2        0.33 x tier1 = 35.2,  JetBrains Mono 500, +0.18em (6.34), caps
+
+  COMPACT VARIANT (nav / favicon / anywhere tier 2 is suppressed): delete the
+  <g id="category"> block, drop the translate on <g id="mark">, and set the
+  viewBox to "0 0 480 128". Tier 2 is licensed ONCE PER SURFACE — on the web
+  site that surface is the footer.
+
+  Colour: mark and wordmark inherit `currentColor` (#090B0D on light surfaces,
+  #FFFFFF on dark). Two elements are surface-dependent and this file defaults
+  BOTH to their light-surface values, matching the `currentColor` fallback:
+    candidate rail  light #B83512  ·  dark #FF5A36  (prop hajer-candidate)
+    tier 2          light #5F6670  ·  dark #AEB4BC  (prop hajer-category)
+  #FF5A36 is 2.75:1 on Paper #F3F1EA and fails even the 3:1 non-text threshold;
+  #B83512 is 5.23:1. Muted #AEB4BC is 1.85:1 on Paper and is banned there.
+  A dark host inlining this file sets both custom properties.
+
+  NOTE — `currentColor` and the custom properties only resolve against the host
+  document when this file is inlined into the DOM or used as a CSS mask.
+  Referenced through <img> or opened on its own everything falls back to the
+  light-surface tone. For on-page rendering use
+  components/brand/HajerMark.tsx instead of this file.
+
+  NOTE — both tiers are LIVE TEXT, not outlines, because this file carries no
+  embedded webfont. They render correctly wherever Geist / JetBrains Mono are
+  installed and fall back to the system stacks elsewhere; the advance widths
+  (and therefore the trailing space inside the viewBox) are nominal for those
+  faces. Replace these <text> elements with outlined paths when the vendor
+  master is supplied, and tighten the viewBox to the real glyph extent then.
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 928 160"
+  width="928"
+  height="160"
+  fill="none"
+  role="img"
+  aria-label="Hajer"
+>
+  <title>Hajer</title>
+
+  <!-- mark — geometry brand-locked, translated only -->
+  <g id="mark" transform="translate(0 16)">
+    <rect x="0" y="0" width="32" height="128" fill="currentColor" />
+    <path
+      d="M32 102 H48 V76 H64"
+      stroke="currentColor"
+      stroke-width="14"
+      stroke-linecap="butt"
+      stroke-linejoin="miter"
+    />
+    <rect
+      x="67"
+      y="63"
+      width="26"
+      height="26"
+      stroke="currentColor"
+      stroke-width="6"
+    />
+    <path
+      d="M96 76 H112 V50 H128"
+      stroke="currentColor"
+      stroke-width="14"
+      stroke-linecap="butt"
+      stroke-linejoin="miter"
+    />
+    <!-- candidate rail — light #B83512, dark #FF5A36 -->
+    <rect
+      x="128"
+      y="0"
+      width="32"
+      height="128"
+      fill="var(--hajer-candidate, #B83512)"
+    />
+  </g>
+
+  <!-- tier 1 — the wordmark. Monochrome by contract. -->
+  <text
+    id="wordmark"
+    x="208"
+    y="86"
+    fill="currentColor"
+    font-family="Geist, ui-sans-serif, system-ui, sans-serif"
+    font-size="106.67"
+    font-weight="600"
+    letter-spacing="-3.2"
+  >Hajer</text>
+
+  <!-- tier 2 — the category line. Suppressed on every surface but the footer. -->
+  <g id="category">
+    <text
+      x="208"
+      y="151.3"
+      fill="var(--hajer-category, #5F6670)"
+      font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace"
+      font-size="35.2"
+      font-weight="500"
+      letter-spacing="6.34"
+    >MODEL MIGRATION ASSURANCE</text>
+  </g>
+</svg>

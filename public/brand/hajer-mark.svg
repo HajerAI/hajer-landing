@@ -1,0 +1,70 @@
+<!--
+  HAJER MARK — standalone master.
+  Geometry is identical to components/brand/HajerMark.tsx and is brand-locked:
+  viewBox 160x128 on a 16px base unit. Current model rail -> controlled crossing
+  -> verification gate -> one behavioral step -> candidate model rail.
+
+  Colour: the rails, crossing, gate and step inherit `currentColor`
+  (#090B0D on light surfaces, #FFFFFF on dark). The candidate rail is the only
+  colour in the whole identity.
+
+  The candidate rail has TWO licensed values and the surface decides:
+    dark surface   Signal Vermilion  #FF5A36
+    light surface  Ink Vermilion     #B83512
+  #FF5A36 measures 2.75:1 on Paper #F3F1EA and fails even the 3:1 non-text
+  threshold; #B83512 is 5.23:1. This file defaults to the light value to match
+  its `currentColor` fallback; a dark host inlining it sets the custom property
+  `hajer-candidate` (see the rail below) to #FF5A36. The React component does
+  the same through tone="inverse" / tone="ink".
+
+  NOTE — `currentColor` and the custom property only resolve against the host
+  document when this file is inlined into the DOM or used as a CSS mask.
+  Referenced through <img> or opened on its own it falls back to the document's
+  initial colour (black) plus the light-surface rail, i.e. the light-surface
+  tone throughout. For on-page rendering use components/brand/HajerMark.tsx
+  instead of this file.
+  Clear space: 32 units (the gate width) on every side. Never rotate, stretch,
+  recolour, or add effects.
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 160 128"
+  width="160"
+  height="128"
+  fill="none"
+  role="img"
+  aria-label="Hajer"
+>
+  <title>Hajer</title>
+  <rect x="0" y="0" width="32" height="128" fill="currentColor" />
+  <path
+    d="M32 102 H48 V76 H64"
+    stroke="currentColor"
+    stroke-width="14"
+    stroke-linecap="butt"
+    stroke-linejoin="miter"
+  />
+  <rect
+    x="67"
+    y="63"
+    width="26"
+    height="26"
+    stroke="currentColor"
+    stroke-width="6"
+  />
+  <path
+    d="M96 76 H112 V50 H128"
+    stroke="currentColor"
+    stroke-width="14"
+    stroke-linecap="butt"
+    stroke-linejoin="miter"
+  />
+  <!-- candidate rail — light #B83512, dark #FF5A36 -->
+  <rect
+    x="128"
+    y="0"
+    width="32"
+    height="128"
+    fill="var(--hajer-candidate, #B83512)"
+  />
+</svg>
