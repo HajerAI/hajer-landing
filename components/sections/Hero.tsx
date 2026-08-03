@@ -11,6 +11,7 @@ export function Hero() {
             <span className="block text-balance lg:whitespace-nowrap">
               {hero.headlineLead}
             </span>
+            {" "}
             <span className="block text-balance">{hero.headlineAction}</span>
           </h1>
 
