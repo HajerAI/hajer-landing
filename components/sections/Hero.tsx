@@ -7,8 +7,11 @@ export function Hero() {
     <section className="relative overflow-hidden border-b border-hairline bg-void">
       <div className="relative border-b border-hairline pb-16 pt-32 md:pb-20 md:pt-40">
         <div className="shell relative z-10">
-          <h1 className="max-w-6xl text-5xl font-medium leading-[0.98] tracking-[-0.04em] text-white text-balance md:text-7xl xl:text-[5.75rem]">
-            {hero.headline}
+          <h1 className="max-w-6xl text-[clamp(2.75rem,12.3vw,3rem)] font-medium leading-[0.98] tracking-[-0.04em] text-white md:text-7xl xl:text-[5.75rem]">
+            <span className="block text-balance lg:whitespace-nowrap">
+              {hero.headlineLead}
+            </span>
+            <span className="block text-balance">{hero.headlineAction}</span>
           </h1>
 
           <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.48fr)] lg:items-end lg:gap-20">
