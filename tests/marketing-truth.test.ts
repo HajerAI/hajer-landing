@@ -56,6 +56,11 @@ test("the rendered page keeps the Replit visual system with the bounded assessme
     copy.hero.headline,
     "Don’t switch AI models blind. See what breaks first.",
   );
+  assert.equal(copy.hero.headlineLead, "Don’t switch AI models\u00a0blind.");
+  assert.equal(copy.hero.headlineAction, "See what breaks first.");
+  assert.match(heroSource, /headlineLead/);
+  assert.match(heroSource, /lg:whitespace-nowrap/);
+  assert.match(heroSource, /text-\[clamp\(2\.75rem,12\.3vw,3rem\)\]/);
   assert.match(copy.hero.microcopy, /founder-led assessments/i);
   assert.equal(copy.runway.zones.current, "GPT-5");
   assert.equal(copy.runway.zones.candidate, "Claude Sonnet 4.5");

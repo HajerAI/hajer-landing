@@ -25,6 +25,8 @@ export const nav = {
 
 export const hero = {
   headline: "Don’t switch AI models blind. See what breaks first.",
+  headlineLead: "Don’t switch AI models\u00a0blind.",
+  headlineAction: "See what breaks first.",
   body:
     "Hajer gives engineering leaders an independent assessment of one production model migration. We compare a candidate with the behavior your system already depends on and produce a traceable record of what held, what changed, and what the evidence cannot determine.",
   authority: "Your team keeps the final release decision.",
