@@ -421,6 +421,8 @@ export const waitlist = {
   submitLabel: "Request an assessment",
   consent:
     "By joining, you agree to receive Hajer product updates. You can unsubscribe at any time.",
+  privacyLabel: "Privacy policy",
+  privacyHref: "/privacy",
   successHeadline: "You’re on the list.",
   successBody:
     "We’ll be in touch as Hajer begins early assessments. If a migration is already under consideration, the optional fields help us understand the fit.",
@@ -465,15 +467,4 @@ export const thankYou = {
   detailsReceivedHeadline: "Details received.",
   detailsReceivedBody: "Thanks. We’ll read them before we get in touch.",
   homeLabel: "Back to hajer.ai",
-} as const;
-
-/** Cookie notice. One sentence, two choices; see components/consent. */
-export const consent = {
-  region: "Cookie consent",
-  body: "We use analytics cookies to understand how this site is used.",
-  privacyLabel: "Privacy policy",
-  privacyHref: "/privacy",
-  accept: "Accept",
-  decline: "Decline",
-  manage: "Cookie preferences",
 } as const;

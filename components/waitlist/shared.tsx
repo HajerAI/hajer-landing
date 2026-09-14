@@ -1,7 +1,4 @@
 import type { ReactNode } from "react";
-import posthog from "posthog-js";
-
-import { POSTHOG_COOKIELESS_SENTINEL } from "@/lib/consent";
 
 import {
   EMAIL_MAX,
@@ -174,18 +171,6 @@ export async function postWaitlist(
     "content-type": "application/json",
     "idempotency-key": idempotencyKey,
   };
-  // Identity is forwarded only with explicit consent. While consent is pending
-  // PostHog holds an ephemeral id the browser will never send events for, and
-  // after a decline it holds the cookieless sentinel; forwarding either would
-  // mint server-side "people" that never link back to a real session.
-  const consented =
-    posthog.__loaded && posthog.get_explicit_consent_status() === "granted";
-  const distinctId = consented ? posthog.get_distinct_id() : "";
-  const sessionId = consented ? posthog.get_session_id() : "";
-  if (distinctId && distinctId !== POSTHOG_COOKIELESS_SENTINEL) {
-    headers["x-posthog-distinct-id"] = distinctId;
-  }
-  if (sessionId) headers["x-posthog-session-id"] = sessionId;
 
   let response: Response;
   try {

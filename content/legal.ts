@@ -4,7 +4,7 @@
  * different standard, accuracy against the code rather than the pitch.
  *
  * Every statement below describes what app/api/waitlist/route.ts,
- * lib/waitlist/*, instrumentation-client.ts, components/consent and
+ * lib/waitlist/*, instrumentation-client.ts, components/waitlist/* and
  * app/layout.tsx actually do. Change the code, change the document, and move
  * the effective date.
  *
@@ -74,15 +74,15 @@ export const privacyPolicy: LegalDocument = {
       ],
     },
     {
-      heading: "Analytics, session replay, and cookies",
+      heading: "Analytics and cookies",
       paragraphs: [
-        "We use two analytics services: Google Analytics 4 and PostHog, hosted in the European Union. Neither one runs until you choose “Accept” in the cookie notice at the bottom of the page. Until then, no analytics cookies are set and no session is recorded.",
-        "If you accept, these services collect the pages you view, how you interact with them, information about your browser and device, an approximate location derived from your IP address, and identifiers kept in cookies or local storage. PostHog also records session replays and captures errors so we can see where the site breaks. Form fields are masked in replays.",
-        "Events Hajer sends to these services on its own account carry only flags: that a request was submitted, which form was used, and whether optional details were included. They never carry your email address or the text you typed.",
-        "Your choice is stored in your browser under the key hajer:consent, and PostHog keeps a matching record. Those two entries are the only storage the site uses without asking. You can change your choice at any time with “Cookie preferences” in the footer. Before you decide, PostHog receives one configuration request from your browser; it carries your IP address but no identifier. We do not respond to Do Not Track signals; the cookie notice is the control.",
+        "We use one analytics service, PostHog, hosted in the European Union, to count visits and see how the page is used. It runs without cookies: the site sets no analytics cookie and stores no analytics identifier in your browser, which is why there is no cookie notice.",
+        "Instead of an identifier, PostHog derives a hash on its own servers from your IP address, your browser’s user-agent string, the site’s hostname, and a random value that changes daily and is then deleted. That hash cannot be turned back into your IP address or browser details, and it changes every day, so there is no record that follows you from one day to the next.",
+        "Against that hash, PostHog records the pages you view, where you click and how far you scroll, information about your browser and device, an approximate location derived from your IP address, and any errors the page throws so we can see where the site breaks. There is no session replay.",
+        "Events Hajer sends on its own account carry only flags: that a request was submitted, which form was used, and whether optional details were included. They never carry your email address or the text you typed.",
+        "The only thing the site keeps in your browser is a session-only record of your own submission, so the two forms can share it; it is deleted when the tab closes. We do not respond to Do Not Track signals. Blocking analytics with a browser extension or a content blocker works as expected: the site does not depend on it.",
       ],
       links: [
-        { label: "Google Privacy Policy", href: "https://policies.google.com/privacy" },
         { label: "PostHog Privacy Policy", href: "https://posthog.com/privacy" },
       ],
     },
@@ -94,7 +94,7 @@ export const privacyPolicy: LegalDocument = {
         "To send one follow-up email after your address is stored.",
         "To send occasional product updates, which you agreed to when you submitted the form.",
         "To operate and protect the site: rate limiting, abuse prevention, and error tracking.",
-        "To understand how the site is used, if you accepted analytics.",
+        "To understand how the site is used, through the cookieless analytics described above.",
       ],
     },
     {
@@ -107,7 +107,7 @@ export const privacyPolicy: LegalDocument = {
     {
       heading: "Legal bases",
       paragraphs: [
-        "Where the GDPR or UK GDPR applies, we rely on your consent for product updates and for analytics cookies; on our legitimate interest in answering inbound requests and keeping the site secure; and, when scoping an assessment, on taking steps at your request before entering a contract.",
+        "Where the GDPR or UK GDPR applies, we rely on your consent for product updates; on our legitimate interest in answering inbound requests, keeping the site secure, and measuring how the site is used with the cookieless, non-identifying analytics described above; and, when scoping an assessment, on taking steps at your request before entering a contract.",
       ],
     },
     {
@@ -116,8 +116,8 @@ export const privacyPolicy: LegalDocument = {
       bullets: [
         "Vercel hosts the website and runs the form’s server code.",
         "Supabase stores form submissions in a database that only our server can write to.",
-        "Google provides Workspace, which sends our email, and Google Analytics.",
-        "PostHog provides product analytics, session replay, and error tracking, hosted in the EU.",
+        "Google provides Workspace, which sends our email.",
+        "PostHog provides cookieless product analytics and error tracking, hosted in the EU.",
       ],
       notes: [
         "We do not sell personal information and we do not use it for targeted advertising. We disclose information when the law requires it, to protect rights or safety, or as part of a business transfer, in which case this policy continues to apply.",
@@ -132,7 +132,7 @@ export const privacyPolicy: LegalDocument = {
     {
       heading: "How long we keep it",
       paragraphs: [
-        "We keep your submission while your request is open and while your address remains on the list. Ask, and we delete it. Analytics data is retained for the period configured with each provider.",
+        "We keep your submission while your request is open and while your address remains on the list. Ask, and we delete it. Analytics data is retained for the period configured with PostHog.",
       ],
     },
     {

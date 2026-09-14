@@ -1,6 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
 
-import { POSTHOG_COOKIELESS_SENTINEL } from "@/lib/consent";
 import { createPostHogClient } from "@/lib/posthog-server";
 import { resolveDestination, type DeliveryMeta } from "@/lib/waitlist/destination";
 import { resolveFounderFollowupSender } from "@/lib/waitlist/founder-followup";
@@ -112,51 +111,22 @@ function rateLimitKey(request: Request): string {
   return hashIdentifier(firstHop || realIp || "unknown-client");
 }
 
-function posthogContext(request: Request, fallbackDistinctId: string) {
-  // The header is client-controlled. A declined visitor's browser holds the
-  // cookieless sentinel and the client already withholds it; drop it here too
-  // so a stale or forged value can never become one shared "person".
-  const header = request.headers.get("x-posthog-distinct-id")?.trim();
-  const distinctId =
-    header && header !== POSTHOG_COOKIELESS_SENTINEL ? header : fallbackDistinctId;
-  return {
-    distinctId,
-    sessionId: request.headers.get("x-posthog-session-id")?.trim() || undefined,
-  };
-}
-
-async function captureWaitlistEvent(
-  request: Request,
-  fallbackDistinctId: string,
-  event: "waitlist_joined" | "waitlist_details_submitted",
-  properties: Record<string, unknown>,
-): Promise<void> {
-  const posthog = createPostHogClient();
-  if (!posthog) return;
-  const { distinctId, sessionId } = posthogContext(request, fallbackDistinctId);
-  try {
-    posthog.capture({
-      distinctId,
-      event,
-      properties: { ...properties, $session_id: sessionId },
-    });
-    await posthog.shutdown();
-  } catch {
-    console.error("[waitlist] PostHog event capture failed");
-  }
-}
-
+/**
+ * Delivery failures go to PostHog error tracking. Signup events themselves are
+ * captured in the browser (components/waitlist/WaitlistForms.tsx): the site
+ * runs PostHog cookieless, so there is no browser identity to forward here and
+ * a server-side event could never join the visitor's pageview. The distinct id
+ * is the submission key, which links the report to the row it failed to write
+ * and to nothing else; no person profile is created for it.
+ */
 async function captureWaitlistException(
-  request: Request,
-  fallbackDistinctId: string,
+  distinctId: string,
   error: unknown,
 ): Promise<void> {
   const posthog = createPostHogClient();
-  if (!posthog) return;
-  const { distinctId, sessionId } = posthogContext(request, fallbackDistinctId);
   try {
     posthog.captureException(error, distinctId, {
-      $session_id: sessionId,
+      $process_person_profile: false,
       failure_stage: "destination_delivery",
     });
     await posthog.shutdown();
@@ -283,11 +253,7 @@ export async function POST(request: Request): Promise<Response> {
     console.error(
       `[waitlist] ${requestId} delivery via "${destination.name}" failed: ${reason}`,
     );
-    await captureWaitlistException(
-      request,
-      idempotencyKey || requestId,
-      error,
-    );
+    await captureWaitlistException(idempotencyKey || requestId, error);
     return json(
       {
         ok: false,
@@ -313,24 +279,6 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
   }
-
-  const enriched = hasMigrationDetails(submission);
-  await captureWaitlistEvent(
-    request,
-    idempotencyKey || requestId,
-    enriched ? "waitlist_details_submitted" : "waitlist_joined",
-    enriched
-      ? {
-          has_company: Boolean(submission.company),
-          has_role: Boolean(submission.role),
-          has_trace_platform: Boolean(submission.tracePlatform),
-          has_current_model: Boolean(submission.currentModel),
-          has_candidate_model: Boolean(submission.candidateModel),
-          has_deadline: Boolean(submission.deadline),
-          design_partner_interest: submission.designPartner === true,
-        }
-      : { form_location: meta.source ?? "unknown" },
-  );
 
   const body = { ok: true as const, id };
   if (cacheKey) {

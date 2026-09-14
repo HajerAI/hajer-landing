@@ -3,7 +3,7 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { sendGAEvent } from "@next/third-parties/google";
+import posthog from "posthog-js";
 
 import {
   postWaitlist,
@@ -14,8 +14,7 @@ import {
   validateEmailValue,
   writeCaptureHandoff,
 } from "@/components/waitlist/shared";
-import { consent as consentCopy, thankYou, waitlist } from "@/content/copy";
-import { readConsent } from "@/lib/consent";
+import { thankYou, waitlist } from "@/content/copy";
 import {
   EMAIL_MAX,
   FIELD_MAX,
@@ -26,13 +25,17 @@ import {
 type FormState = "idle" | "submitting" | "success" | "error";
 
 /**
- * GA exists only after the visitor accepted analytics (lib/consent.ts). The
- * server still records the signup itself either way; this is the marketing
- * conversion signal, nothing more.
+ * Conversion events are captured here, in the browser, and nowhere else.
+ * PostHog runs cookieless (instrumentation-client.ts): the visitor's id is a
+ * server-side hash the browser never sees, so a server-captured event could
+ * not be joined to the pageview that led to it. Properties are flags only;
+ * never the address or anything typed into a field.
  */
-function reportLead(properties: Record<string, unknown>): void {
-  if (readConsent() !== "granted") return;
-  sendGAEvent("event", "generate_lead", properties);
+function reportSignup(
+  event: "waitlist_joined" | "waitlist_details_submitted",
+  properties: Record<string, boolean | string>,
+): void {
+  posthog.capture(event, properties);
 }
 
 function ConsentNote({ className }: { className: string }) {
@@ -40,11 +43,11 @@ function ConsentNote({ className }: { className: string }) {
     <p className={className}>
       {waitlist.consent}{" "}
       <Link
-        href={consentCopy.privacyHref}
+        href={waitlist.privacyHref}
         prefetch={false}
         className="underline underline-offset-4 transition-colors hover:text-white"
       >
-        {consentCopy.privacyLabel}
+        {waitlist.privacyLabel}
       </Link>
     </p>
   );
@@ -103,7 +106,7 @@ export function WaitlistInline() {
           previous?.email === address && previous.detailsSubmitted === true,
       });
       if (honeypot.length === 0) {
-        reportLead({ form_location: "hero" });
+        reportSignup("waitlist_joined", { form_location: "hero" });
       }
       // inFlightRef stays true: the page is leaving, and a second click while
       // the transition runs must not re-POST.
@@ -307,10 +310,7 @@ export function WaitlistFull({ onSuccess = "redirect" }: WaitlistFullProps) {
         idempotencyKey,
       });
       if (honeypot.length === 0) {
-        reportLead({
-          form_location: "waitlist",
-          details_included: hasDetails(),
-        });
+        reportSignup("waitlist_joined", { form_location: "form" });
       }
     }
 
@@ -333,6 +333,17 @@ export function WaitlistFull({ onSuccess = "redirect" }: WaitlistFullProps) {
         idempotencyKey,
         detailsSubmitted: true,
       });
+      if (honeypot.length === 0) {
+        reportSignup("waitlist_details_submitted", {
+          has_company: company.trim().length > 0,
+          has_role: role.trim().length > 0,
+          has_trace_platform: tracePlatform.trim().length > 0,
+          has_current_model: currentModel.trim().length > 0,
+          has_candidate_model: candidateModel.trim().length > 0,
+          has_deadline: deadline.trim().length > 0,
+          design_partner_interest: designPartner,
+        });
+      }
     }
 
     if (!inline) {

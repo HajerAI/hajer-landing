@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { HajerMark } from "@/components/brand/HajerMark";
-import { ManageCookiesButton } from "@/components/consent/CookieBanner";
 import { footer, nav } from "@/content/copy";
 
 const LEGAL_LINK_CLASS =
@@ -70,7 +69,6 @@ export function SiteFooter() {
               <Link href="/terms" prefetch={false} className={LEGAL_LINK_CLASS}>
                 {footer.termsLabel}
               </Link>
-              <ManageCookiesButton className={LEGAL_LINK_CLASS} />
             </nav>
           </div>
           <span>{footer.availability}</span>

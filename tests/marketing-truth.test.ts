@@ -92,13 +92,16 @@ test("the illustrative replay is removed from the mobile layout", () => {
 });
 
 test("Next retains analytics, durable capture, and founder follow-up mechanics", () => {
-  assert.match(layoutSource, /<GoogleAnalytics gaId="G-PNJNM11W5B" \/>/);
+  assert.doesNotMatch(layoutSource, /third-parties|GoogleAnalytics|CookieBanner|ConsentGate/);
   assert.match(formsSource, /postWaitlist/);
   assert.match(formsSource, /source: "hero"/);
   assert.match(formsSource, /source: "form"/);
   assert.match(formsSource, /writeCaptureHandoff/);
   assert.match(formsSource, /readCaptureHandoff/);
-  assert.match(formsSource, /sendGAEvent\("event", "generate_lead"/);
+  assert.match(formsSource, /reportSignup\("waitlist_joined", \{ form_location: "hero" \}\)/);
+  assert.match(formsSource, /reportSignup\("waitlist_joined", \{ form_location: "form" \}\)/);
+  assert.match(formsSource, /reportSignup\("waitlist_details_submitted"/);
+  assert.doesNotMatch(formsSource, /sendGAEvent|readConsent/);
   assert.match(routeSource, /resolveFounderFollowupSender/);
   assert.match(followupSource, /omar@hajer\.ai/);
   assert.match(followupSource, /gmail\/v1\/users\/me\/messages\/send/);
