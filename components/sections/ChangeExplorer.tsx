@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { ChangeDiff } from "@/components/motion/change-diff";
 import { changeExplorer } from "@/content/copy";
 import type { ChangePatternName } from "@/content/copy";
@@ -12,6 +13,14 @@ export function ChangeExplorer() {
   const active =
     changeExplorer.patterns.find((pattern) => pattern.name === activeName) ??
     changeExplorer.patterns[0];
+
+  function selectPattern(name: ChangePatternName, inputMethod: "menu" | "button") {
+    setActiveName(name);
+    posthog.capture("change_pattern_selected", {
+      pattern_name: name,
+      input_method: inputMethod,
+    });
+  }
 
   return (
     <section
@@ -37,7 +46,9 @@ export function ChangeExplorer() {
             <select
               id="change-pattern"
               value={activeName}
-              onChange={(event) => setActiveName(event.target.value as ChangePatternName)}
+              onChange={(event) =>
+                selectPattern(event.target.value as ChangePatternName, "menu")
+              }
               className="h-12 w-full border border-hairline-strong bg-carbon px-3 text-white"
             >
               {changeExplorer.patterns.map((pattern) => (
@@ -57,7 +68,7 @@ export function ChangeExplorer() {
                     key={pattern.name}
                     type="button"
                     aria-pressed={selected}
-                    onClick={() => setActiveName(pattern.name)}
+                    onClick={() => selectPattern(pattern.name, "button")}
                     className={`grid w-full grid-cols-[2rem_1fr] gap-3 border-b border-hairline px-5 py-4 text-left transition-colors last:border-b-0 ${
                       selected
                         ? "bg-carbon text-white"

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import posthog from "posthog-js";
 
 import {
   EMAIL_MAX,
@@ -154,14 +155,20 @@ export async function postWaitlist(
   payload: Record<string, unknown>,
   idempotencyKey: string,
 ): Promise<PostResult> {
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    "idempotency-key": idempotencyKey,
+  };
+  const distinctId = posthog.get_distinct_id();
+  const sessionId = posthog.get_session_id();
+  if (distinctId) headers["x-posthog-distinct-id"] = distinctId;
+  if (sessionId) headers["x-posthog-session-id"] = sessionId;
+
   let response: Response;
   try {
     response = await fetch("/api/waitlist", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "idempotency-key": idempotencyKey,
-      },
+      headers,
       body: JSON.stringify(payload),
     });
   } catch {

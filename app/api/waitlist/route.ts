@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 
+import { createPostHogClient } from "@/lib/posthog-server";
 import { resolveDestination, type DeliveryMeta } from "@/lib/waitlist/destination";
 import { resolveFounderFollowupSender } from "@/lib/waitlist/founder-followup";
 import { checkRateLimit, hashIdentifier } from "@/lib/waitlist/rate-limit";
@@ -108,6 +109,54 @@ function rateLimitKey(request: Request): string {
   const firstHop = forwarded?.split(",")[0]?.trim();
   const realIp = request.headers.get("x-real-ip")?.trim();
   return hashIdentifier(firstHop || realIp || "unknown-client");
+}
+
+function posthogContext(request: Request, fallbackDistinctId: string) {
+  return {
+    distinctId:
+      request.headers.get("x-posthog-distinct-id")?.trim() || fallbackDistinctId,
+    sessionId: request.headers.get("x-posthog-session-id")?.trim() || undefined,
+  };
+}
+
+async function captureWaitlistEvent(
+  request: Request,
+  fallbackDistinctId: string,
+  event: "waitlist_joined" | "waitlist_details_submitted",
+  properties: Record<string, unknown>,
+): Promise<void> {
+  const posthog = createPostHogClient();
+  if (!posthog) return;
+  const { distinctId, sessionId } = posthogContext(request, fallbackDistinctId);
+  try {
+    posthog.capture({
+      distinctId,
+      event,
+      properties: { ...properties, $session_id: sessionId },
+    });
+    await posthog.shutdown();
+  } catch {
+    console.error("[waitlist] PostHog event capture failed");
+  }
+}
+
+async function captureWaitlistException(
+  request: Request,
+  fallbackDistinctId: string,
+  error: unknown,
+): Promise<void> {
+  const posthog = createPostHogClient();
+  if (!posthog) return;
+  const { distinctId, sessionId } = posthogContext(request, fallbackDistinctId);
+  try {
+    posthog.captureException(error, distinctId, {
+      $session_id: sessionId,
+      failure_stage: "destination_delivery",
+    });
+    await posthog.shutdown();
+  } catch {
+    console.error("[waitlist] PostHog exception capture failed");
+  }
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -228,6 +277,11 @@ export async function POST(request: Request): Promise<Response> {
     console.error(
       `[waitlist] ${requestId} delivery via "${destination.name}" failed: ${reason}`,
     );
+    await captureWaitlistException(
+      request,
+      idempotencyKey || requestId,
+      error,
+    );
     return json(
       {
         ok: false,
@@ -253,6 +307,24 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
   }
+
+  const enriched = hasMigrationDetails(submission);
+  await captureWaitlistEvent(
+    request,
+    idempotencyKey || requestId,
+    enriched ? "waitlist_details_submitted" : "waitlist_joined",
+    enriched
+      ? {
+          has_company: Boolean(submission.company),
+          has_role: Boolean(submission.role),
+          has_trace_platform: Boolean(submission.tracePlatform),
+          has_current_model: Boolean(submission.currentModel),
+          has_candidate_model: Boolean(submission.candidateModel),
+          has_deadline: Boolean(submission.deadline),
+          design_partner_interest: submission.designPartner === true,
+        }
+      : { form_location: meta.source ?? "unknown" },
+  );
 
   const body = { ok: true as const, id };
   if (cacheKey) {
