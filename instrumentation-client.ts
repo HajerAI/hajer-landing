@@ -17,6 +17,13 @@ if (!token || !host) {
     api_host: host,
     defaults: "2026-05-30",
     capture_exceptions: true,
+    // Nothing is captured or stored until the visitor answers the cookie
+    // notice (components/consent). A decline keeps counting under a daily
+    // hashed id with no cookie; an accept turns on persistence and replay.
+    cookieless_mode: "on_reject",
+    // Stated in the privacy policy, so it is pinned here rather than left to
+    // the dashboard default.
+    session_recording: { maskAllInputs: true },
     debug: process.env.NODE_ENV === "development",
   });
 }

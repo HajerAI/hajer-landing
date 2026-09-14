@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
+import { privacyPolicy, termsOfService } from "@/content/legal";
 import { site } from "@/content/site";
 
-// One page, one entry. Section links are same-page anchors, not routes.
+// The landing page plus the two legal documents. Section links are same-page
+// anchors, not routes, and /thank-you is a post-submit page marked noindex.
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
@@ -9,6 +11,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
+    },
+    {
+      url: `${site.url}/privacy`,
+      lastModified: new Date(privacyPolicy.effectiveDate),
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
+    {
+      url: `${site.url}/terms`,
+      lastModified: new Date(termsOfService.effectiveDate),
+      changeFrequency: "yearly",
+      priority: 0.2,
     },
   ];
 }

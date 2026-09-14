@@ -12,15 +12,21 @@ export const site = {
 } as const;
 
 export const nav = {
+  /**
+   * Root-relative fragments so the same links work from /privacy, /terms and
+   * /thank-you. On the home page "/#problem" is still a same-document jump.
+   */
+  homeHref: "/#main",
   links: [
-    { label: "The Problem", href: "#problem" },
-    { label: "What Breaks", href: "#changes" },
-    { label: "Assessment", href: "#building" },
-    { label: "Deliverables", href: "#deliverables" },
-    { label: "Responsibility", href: "#authority" },
-    { label: "For Teams", href: "#status" },
+    { label: "The Problem", href: "/#problem" },
+    { label: "What Breaks", href: "/#changes" },
+    { label: "Assessment", href: "/#building" },
+    { label: "Deliverables", href: "/#deliverables" },
+    { label: "Responsibility", href: "/#authority" },
+    { label: "For Teams", href: "/#status" },
   ],
   cta: "Request Assessment",
+  ctaHref: "/#waitlist",
 } as const;
 
 export const hero = {
@@ -443,4 +449,31 @@ export const footer = {
   emailNote: "Assessments, partnerships, and questions.",
   availability: "Founder-led model-migration assessments",
   copyright: `© ${new Date().getFullYear()} Hajer. All rights reserved.`,
+  legalLabel: "Legal",
+  privacyLabel: "Privacy",
+  termsLabel: "Terms",
+} as const;
+
+/** /thank-you: every successful signup lands here. */
+export const thankYou = {
+  label: "Request received",
+  title: "You’re on the list",
+  description: "Your Hajer assessment request has been received.",
+  detailsHeadline: "Tell us about the migration",
+  detailsBody:
+    "Optional. If a model change is already under consideration, these details help us understand the fit before we reach out.",
+  detailsReceivedHeadline: "Details received.",
+  detailsReceivedBody: "Thanks. We’ll read them before we get in touch.",
+  homeLabel: "Back to hajer.ai",
+} as const;
+
+/** Cookie notice. One sentence, two choices; see components/consent. */
+export const consent = {
+  region: "Cookie consent",
+  body: "We use analytics cookies to understand how this site is used.",
+  privacyLabel: "Privacy policy",
+  privacyHref: "/privacy",
+  accept: "Accept",
+  decline: "Decline",
+  manage: "Cookie preferences",
 } as const;

@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 
+import { POSTHOG_COOKIELESS_SENTINEL } from "@/lib/consent";
 import { createPostHogClient } from "@/lib/posthog-server";
 import { resolveDestination, type DeliveryMeta } from "@/lib/waitlist/destination";
 import { resolveFounderFollowupSender } from "@/lib/waitlist/founder-followup";
@@ -112,9 +113,14 @@ function rateLimitKey(request: Request): string {
 }
 
 function posthogContext(request: Request, fallbackDistinctId: string) {
+  // The header is client-controlled. A declined visitor's browser holds the
+  // cookieless sentinel and the client already withholds it; drop it here too
+  // so a stale or forged value can never become one shared "person".
+  const header = request.headers.get("x-posthog-distinct-id")?.trim();
+  const distinctId =
+    header && header !== POSTHOG_COOKIELESS_SENTINEL ? header : fallbackDistinctId;
   return {
-    distinctId:
-      request.headers.get("x-posthog-distinct-id")?.trim() || fallbackDistinctId,
+    distinctId,
     sessionId: request.headers.get("x-posthog-session-id")?.trim() || undefined,
   };
 }

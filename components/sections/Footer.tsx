@@ -1,5 +1,11 @@
-import { footer, nav } from "@/content/copy";
+import Link from "next/link";
+
 import { HajerMark } from "@/components/brand/HajerMark";
+import { ManageCookiesButton } from "@/components/consent/CookieBanner";
+import { footer, nav } from "@/content/copy";
+
+const LEGAL_LINK_CLASS =
+  "inline-flex min-h-11 items-center transition-colors hover:text-vermilion md:min-h-0";
 
 export function SiteFooter() {
   return (
@@ -54,8 +60,19 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col justify-between gap-2 border-t border-hairline pt-6 font-mono text-xs text-graphite md:flex-row">
-          <span>{footer.copyright}</span>
+        <div className="mt-16 flex flex-col gap-4 border-t border-hairline pt-6 font-mono text-xs text-graphite md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+            <span>{footer.copyright}</span>
+            <nav aria-label={footer.legalLabel} className="flex flex-wrap items-center gap-x-6 gap-y-1">
+              <Link href="/privacy" prefetch={false} className={LEGAL_LINK_CLASS}>
+                {footer.privacyLabel}
+              </Link>
+              <Link href="/terms" prefetch={false} className={LEGAL_LINK_CLASS}>
+                {footer.termsLabel}
+              </Link>
+              <ManageCookiesButton className={LEGAL_LINK_CLASS} />
+            </nav>
+          </div>
           <span>{footer.availability}</span>
         </div>
       </div>

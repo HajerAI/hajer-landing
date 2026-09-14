@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useId, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { sendGAEvent } from "@next/third-parties/google";
 
 import {
@@ -8,10 +10,12 @@ import {
   createIdempotencyKey,
   readCaptureHandoff,
   SYSTEM_COPY,
+  THANK_YOU_PATH,
   validateEmailValue,
   writeCaptureHandoff,
 } from "@/components/waitlist/shared";
-import { waitlist } from "@/content/copy";
+import { consent as consentCopy, thankYou, waitlist } from "@/content/copy";
+import { readConsent } from "@/lib/consent";
 import {
   EMAIL_MAX,
   FIELD_MAX,
@@ -21,8 +25,34 @@ import {
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
+/**
+ * GA exists only after the visitor accepted analytics (lib/consent.ts). The
+ * server still records the signup itself either way; this is the marketing
+ * conversion signal, nothing more.
+ */
+function reportLead(properties: Record<string, unknown>): void {
+  if (readConsent() !== "granted") return;
+  sendGAEvent("event", "generate_lead", properties);
+}
+
+function ConsentNote({ className }: { className: string }) {
+  return (
+    <p className={className}>
+      {waitlist.consent}{" "}
+      <Link
+        href={consentCopy.privacyHref}
+        prefetch={false}
+        className="underline underline-offset-4 transition-colors hover:text-white"
+      >
+        {consentCopy.privacyLabel}
+      </Link>
+    </p>
+  );
+}
+
 export function WaitlistInline() {
   const baseId = useId();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -62,36 +92,29 @@ export function WaitlistInline() {
       },
       idempotencyKey,
     );
-    inFlightRef.current = false;
 
     if (result.ok) {
+      const previous = readCaptureHandoff();
       writeCaptureHandoff({
         confirmed: true,
         email: address,
         idempotencyKey,
+        detailsSubmitted:
+          previous?.email === address && previous.detailsSubmitted === true,
       });
       if (honeypot.length === 0) {
-        sendGAEvent("event", "generate_lead", { form_location: "hero" });
+        reportLead({ form_location: "hero" });
       }
-      setState("success");
-    } else {
-      setState("error");
-      setErrorMsg(result.message || SYSTEM_COPY.unknown);
-      emailRef.current?.focus();
+      // inFlightRef stays true: the page is leaving, and a second click while
+      // the transition runs must not re-POST.
+      router.push(THANK_YOU_PATH);
+      return;
     }
-  }
 
-  if (state === "success") {
-    return (
-      <div
-        aria-live="polite"
-        role="status"
-        className="flex items-center gap-3 p-4 border border-[var(--color-ready)] bg-carbon text-white text-sm font-mono mt-8 w-full max-w-md"
-      >
-        <div className="w-3 h-3 bg-[var(--color-ready)]" />
-        {waitlist.successHeadline}
-      </div>
-    );
+    inFlightRef.current = false;
+    setState("error");
+    setErrorMsg(result.message || SYSTEM_COPY.unknown);
+    emailRef.current?.focus();
   }
 
   return (
@@ -130,6 +153,7 @@ export function WaitlistInline() {
           maxLength={EMAIL_MAX}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onFocus={() => router.prefetch(THANK_YOU_PATH)}
           placeholder={waitlist.fields.emailPlaceholder}
           className="flex-1 h-12 px-4 bg-void border border-hairline-strong text-white placeholder-muted-dim focus-visible:outline-none focus-visible:border-white transition-colors"
           disabled={state === "submitting"}
@@ -150,12 +174,25 @@ export function WaitlistInline() {
           {errorMsg}
         </p>
       )}
+      <ConsentNote className="mt-3 text-xs leading-5 text-graphite" />
     </form>
   );
 }
 
-export function WaitlistFull() {
+type WaitlistFullProps = {
+  /**
+   * "redirect" (home page): a confirmed submit pushes /thank-you.
+   * "inline" (thank-you page): the form only adds detail to a signup the
+   * server already confirmed. It requires at least one detail and swaps
+   * itself for the details-received panel.
+   */
+  onSuccess?: "redirect" | "inline";
+};
+
+export function WaitlistFull({ onSuccess = "redirect" }: WaitlistFullProps) {
   const baseId = useId();
+  const router = useRouter();
+  const inline = onSuccess === "inline";
   const [state, setState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -232,6 +269,12 @@ export function WaitlistFull() {
       return;
     }
 
+    if (inline && !hasDetails()) {
+      setState("error");
+      setErrorMsg(SYSTEM_COPY.detailsRequired);
+      return;
+    }
+
     inFlightRef.current = true;
     setState("submitting");
 
@@ -264,7 +307,7 @@ export function WaitlistFull() {
         idempotencyKey,
       });
       if (honeypot.length === 0) {
-        sendGAEvent("event", "generate_lead", {
+        reportLead({
           form_location: "waitlist",
           details_included: hasDetails(),
         });
@@ -284,6 +327,18 @@ export function WaitlistFull() {
         );
         return;
       }
+      writeCaptureHandoff({
+        confirmed: true,
+        email: address,
+        idempotencyKey,
+        detailsSubmitted: true,
+      });
+    }
+
+    if (!inline) {
+      // inFlightRef stays true while the page leaves; see WaitlistInline.
+      router.push(THANK_YOU_PATH);
+      return;
     }
 
     inFlightRef.current = false;
@@ -297,13 +352,20 @@ export function WaitlistFull() {
         role="status"
         className="p-8 border border-[var(--color-ready)] bg-carbon text-white"
       >
-        <h3 className="text-xl font-medium mb-2">{waitlist.successHeadline}</h3>
-        <p className="text-muted leading-relaxed">{waitlist.successBody}</p>
+        <h3 className="text-xl font-medium mb-2">{thankYou.detailsReceivedHeadline}</h3>
+        <p className="text-muted leading-relaxed">{thankYou.detailsReceivedBody}</p>
       </div>
     );
   }
 
   const submitting = state === "submitting";
+  const submitLabel = inline
+    ? submitting
+      ? SYSTEM_COPY.detailsSubmitting
+      : SYSTEM_COPY.detailsSubmit
+    : submitting
+      ? SYSTEM_COPY.submitting
+      : waitlist.submitLabel;
   const textFieldClass =
     "h-12 px-4 bg-void border border-hairline-strong focus-visible:border-white transition-colors";
 
@@ -326,6 +388,9 @@ export function WaitlistFull() {
             maxLength={EMAIL_MAX}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => {
+              if (!inline) router.prefetch(THANK_YOU_PATH);
+            }}
             placeholder={waitlist.fields.emailPlaceholder}
             required
             disabled={submitting}
@@ -412,11 +477,11 @@ export function WaitlistFull() {
           disabled={submitting}
           className="h-12 px-8 bg-vermilion text-void font-medium hover:bg-white transition-colors disabled:opacity-50 w-full sm:w-auto shrink-0"
         >
-          {submitting ? SYSTEM_COPY.submitting : waitlist.submitLabel}
+          {submitLabel}
         </button>
-        <p className="text-xs text-graphite text-center sm:text-right max-w-sm ml-auto">
-          {waitlist.consent}
-        </p>
+        {!inline && (
+          <ConsentNote className="text-xs text-graphite text-center sm:text-right max-w-sm ml-auto" />
+        )}
       </div>
       {state === "error" && (
         <p id={`${baseId}-error`} aria-live="polite" className="mt-4 text-center text-sm text-danger sm:text-left">

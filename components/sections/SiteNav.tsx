@@ -37,7 +37,7 @@ export function SiteNav() {
       }`}
     >
       <div className="shell flex justify-between items-center">
-        <a href="#main" aria-label="Hajer home" className="flex min-h-11 items-center group outline-none">
+        <a href={nav.homeHref} aria-label="Hajer home" className="flex min-h-11 items-center group outline-none">
           <HajerLockup tone="inverse" size="nav" markClassName="transition-transform group-hover:scale-95" />
         </a>
 
@@ -62,7 +62,7 @@ export function SiteNav() {
             {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
           </button>
           <a
-            href="#waitlist"
+            href={nav.ctaHref}
             onClick={() => {
               posthog.capture("waitlist_cta_clicked", {
                 navigation_surface: open ? "mobile_menu" : "header",

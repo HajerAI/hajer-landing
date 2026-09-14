@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import posthog from "posthog-js";
 
+import { POSTHOG_COOKIELESS_SENTINEL } from "@/lib/consent";
+
 import {
   EMAIL_MAX,
   EMAIL_REGEX,
@@ -31,6 +33,9 @@ import {
  * ("Your email was not recorded.") and the server supplies only the reason, so
  * the two never repeat each other.
  */
+/** Where both forms send a visitor once the server has confirmed the address. */
+export const THANK_YOU_PATH = "/thank-you";
+
 export const SYSTEM_COPY = {
   submitting: "Joining…",
   failureHeadline: "Your email was not recorded.",
@@ -40,6 +45,8 @@ export const SYSTEM_COPY = {
   detailsSubmit: "Send details",
   detailsSubmitting: "Sending…",
   detailsFailure: "Your place on the list is safe, but those details were not saved.",
+  /** Inline-mode guard on /thank-you: that form exists only to add detail. */
+  detailsRequired: "Add at least one detail, or head back to the site.",
   noscript:
     "Enable JavaScript to join the waitlist. Without it, nothing is submitted.",
   /** Off-screen honeypot label. Never read by a person; plausible to a bot. */
@@ -107,6 +114,11 @@ export function createIdempotencyKey(): string {
    handoff between two components in one visit, not a profile. It dies with
    the tab, and it holds nothing the visitor did not just type into a field on
    this page.
+
+   The handoff also crosses one route change: both forms push /thank-you on
+   success, and the details form there reads the same record to prefill the
+   address and skip the bare capture. `detailsSubmitted` records that the
+   server accepted an enrichment, so the page can stop offering the form.
    ------------------------------------------------------------------ */
 
 const HANDOFF_KEY = "hajer:capture";
@@ -116,6 +128,8 @@ export type CaptureHandoff = {
   confirmed: boolean;
   email: string;
   idempotencyKey: string;
+  /** Set once the SERVER accepted an enrichment payload for this email. */
+  detailsSubmitted?: boolean;
 };
 
 export function readCaptureHandoff(): CaptureHandoff | null {
@@ -131,6 +145,7 @@ export function readCaptureHandoff(): CaptureHandoff | null {
       confirmed: record.confirmed === true,
       email: typeof record.email === "string" ? record.email : "",
       idempotencyKey: record.idempotencyKey,
+      detailsSubmitted: record.detailsSubmitted === true,
     };
   } catch {
     return null;
@@ -159,9 +174,17 @@ export async function postWaitlist(
     "content-type": "application/json",
     "idempotency-key": idempotencyKey,
   };
-  const distinctId = posthog.get_distinct_id();
-  const sessionId = posthog.get_session_id();
-  if (distinctId) headers["x-posthog-distinct-id"] = distinctId;
+  // Identity is forwarded only with explicit consent. While consent is pending
+  // PostHog holds an ephemeral id the browser will never send events for, and
+  // after a decline it holds the cookieless sentinel; forwarding either would
+  // mint server-side "people" that never link back to a real session.
+  const consented =
+    posthog.__loaded && posthog.get_explicit_consent_status() === "granted";
+  const distinctId = consented ? posthog.get_distinct_id() : "";
+  const sessionId = consented ? posthog.get_session_id() : "";
+  if (distinctId && distinctId !== POSTHOG_COOKIELESS_SENTINEL) {
+    headers["x-posthog-distinct-id"] = distinctId;
+  }
   if (sessionId) headers["x-posthog-session-id"] = sessionId;
 
   let response: Response;

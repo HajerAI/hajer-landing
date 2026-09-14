@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, JetBrains_Mono } from "next/font/google";
+import { ConsentGate, CookieBanner } from "@/components/consent/CookieBanner";
 import { site } from "@/content/site";
+import { CONSENT_DEFAULT_SCRIPT } from "@/lib/consent";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -87,13 +89,22 @@ export default function RootLayout({
       className={`${geistSans.variable} ${jetbrainsMono.variable} h-full`}
     >
       <head>
+        {/* Consent Mode defaults must exist before gtag('config') runs. A raw
+            script executes at parse time, which next/script cannot promise. */}
+        <script dangerouslySetInnerHTML={{ __html: CONSENT_DEFAULT_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
         />
       </head>
-      <body className="min-h-full">{children}</body>
-      <GoogleAnalytics gaId="G-PNJNM11W5B" />
+      <body className="min-h-full">
+        {children}
+        <CookieBanner />
+        {/* gtag.js loads only after the visitor accepts analytics. */}
+        <ConsentGate>
+          <GoogleAnalytics gaId="G-PNJNM11W5B" />
+        </ConsentGate>
+      </body>
     </html>
   );
 }
