@@ -35,21 +35,8 @@ const followupSource = await readFile(
   "utf8",
 );
 
-test("the rendered page keeps the Replit visual system with the bounded assessment story", () => {
-  for (const section of [
-    "SiteNav",
-    "Hero",
-    "Problem",
-    "ChangeExplorer",
-    "Building",
-    "Deliverables",
-    "Authority",
-    "Verdict",
-    "Status",
-    "FAQ",
-    "Waitlist",
-    "SiteFooter",
-  ]) {
+test("the rendered page is the hero and footer with the bounded assessment story", () => {
+  for (const section of ["SiteNav", "Hero", "SiteFooter"]) {
     assert.match(pageSource, new RegExp(section));
   }
   assert.equal(
@@ -65,18 +52,13 @@ test("the rendered page keeps the Replit visual system with the bounded assessme
   assert.match(copy.hero.microcopy, /founder-led assessments/i);
   assert.equal(copy.runway.zones.current, "GPT-5");
   assert.equal(copy.runway.zones.candidate, "Claude Sonnet 4.5");
-  assert.equal(copy.deliverables.items.length, 4);
-  assert.match(copy.deliverables.authority, /team retains authority/i);
 });
 
 test("contact and assessment-request copy remain the visible authority", () => {
   assert.equal(copy.footer.email, "hello@hajer.ai");
   assert.equal(copy.nav.cta, "Request Assessment");
   assert.match(copy.waitlist.submitLabel, /request an assessment/i);
-  assert.match(copy.status.intro, /engineering leaders/i);
   assert.doesNotMatch(JSON.stringify(copy), /prelaunch|what does not exist|not yet available/i);
-  assert.equal(copy.authority.hajer.length, copy.authority.customer.length);
-  assert.equal(copy.status.focus.length, copy.status.fit.length);
 });
 
 test("Claude Sonnet owns the orange lane and concerning changes stop at Hajer", () => {
