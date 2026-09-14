@@ -20,7 +20,7 @@ async function loadHtml(): Promise<{ html: string; source: string } | null> {
 const page = await loadHtml();
 
 test(
-  "SSR HTML carries the hero headline, request form, and customer authority",
+  "SSR HTML carries the hero headline, body, and early-access form",
   {
     skip: page
       ? false
@@ -29,11 +29,9 @@ test(
   () => {
     const { html } = page!;
 
-    assert.ok(html.includes("See what breaks first."), "hero headline is missing");
-    assert.ok(html.includes('type="email"'), "inline request form is missing");
-    assert.ok(
-      html.includes("Your team keeps the final release decision."),
-      "customer authority is missing",
-    );
+    assert.ok(html.includes("Nobody maintains their"), "hero headline is missing");
+    assert.ok(html.includes("Hajer does."), "hero headline is missing");
+    assert.ok(html.includes("green, confident, and wrong."), "hero body is missing");
+    assert.ok(html.includes('type="email"'), "inline early-access form is missing");
   },
 );

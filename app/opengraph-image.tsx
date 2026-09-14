@@ -68,9 +68,9 @@ const gridPath = [
 
 /** Break the tagline before its pivot word rather than letting it wrap loosely. */
 function taglineLines(tagline: string): string[] {
-  const pivot = tagline.indexOf("before");
+  const pivot = tagline.indexOf(". ");
   if (pivot <= 0) return [tagline];
-  return [tagline.slice(0, pivot).trim(), tagline.slice(pivot).trim()];
+  return [tagline.slice(0, pivot + 1), tagline.slice(pivot + 1).trim()];
 }
 
 export default function OpengraphImage() {
@@ -165,7 +165,7 @@ export default function OpengraphImage() {
               display: "flex",
               flexDirection: "column",
               maxWidth: 1040,
-              fontSize: 92,
+              fontSize: 80,
               fontWeight: 600,
               lineHeight: 1.06,
               letterSpacing: "-0.035em",
