@@ -1,3 +1,4 @@
+import { SkipLink } from "@/components/sections/SkipLink";
 import { SiteNav } from "@/components/sections/SiteNav";
 import { Hero } from "@/components/sections/Hero";
 import { Problem } from "@/components/sections/Problem";
@@ -14,12 +15,7 @@ import { SiteFooter } from "@/components/sections/Footer";
 export default function App() {
   return (
     <>
-      <a
-        href="#main"
-        className="fixed left-4 top-4 z-[60] -translate-y-24 bg-white px-4 py-3 text-sm font-medium text-void transition-transform focus:translate-y-0"
-      >
-        Skip to content
-      </a>
+      <SkipLink />
       <SiteNav />
       <main id="main" className="flex flex-col w-full">
         <Hero />

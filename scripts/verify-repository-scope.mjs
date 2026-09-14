@@ -3,6 +3,7 @@ import path from "node:path";
 
 const root = path.resolve(process.argv[2] ?? process.cwd());
 const allowedRootEntries = new Set([
+  ".claude", // committed agent skills (PostHog integration)
   ".env.example",
   ".github",
   ".gitignore",
@@ -11,6 +12,7 @@ const allowedRootEntries = new Set([
   "components",
   "content",
   "eslint.config.mjs",
+  "instrumentation-client.ts", // Next.js requires this file at the project root
   "lib",
   "next.config.ts",
   "package.json",
@@ -23,19 +25,22 @@ const allowedRootEntries = new Set([
   "tests",
   "tsconfig.json",
 ]);
+// Local-only artefacts: gitignored, never reach CI, but present on a developer
+// machine (README tells contributors to create .env.local).
+const localOnlyRootEntries = new Set([
+  ".git",
+  ".next",
+  "node_modules",
+  "next-env.d.ts",
+  "tsconfig.tsbuildinfo",
+  ".env.local",
+  ".DS_Store",
+]);
 const forbiddenExtensions = new Set([".7z", ".gz", ".jsonl", ".map", ".rar", ".tar", ".tgz", ".zip"]);
 const failures = [];
 
 for (const entry of await readdir(root)) {
-  if (
-    entry === ".git" ||
-    entry === ".next" ||
-    entry === "node_modules" ||
-    entry === "next-env.d.ts" ||
-    entry === "tsconfig.tsbuildinfo"
-  ) {
-    continue;
-  }
+  if (localOnlyRootEntries.has(entry)) continue;
   if (!allowedRootEntries.has(entry)) failures.push(`unexpected root entry: ${entry}`);
 }
 

@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 
+import { createPostHogClient } from "@/lib/posthog-server";
 import { resolveDestination, type DeliveryMeta } from "@/lib/waitlist/destination";
 import { resolveFounderFollowupSender } from "@/lib/waitlist/founder-followup";
 import { checkRateLimit, hashIdentifier } from "@/lib/waitlist/rate-limit";
@@ -108,6 +109,30 @@ function rateLimitKey(request: Request): string {
   const firstHop = forwarded?.split(",")[0]?.trim();
   const realIp = request.headers.get("x-real-ip")?.trim();
   return hashIdentifier(firstHop || realIp || "unknown-client");
+}
+
+/**
+ * Delivery failures go to PostHog error tracking. Signup events themselves are
+ * captured in the browser (components/waitlist/WaitlistForms.tsx): the site
+ * runs PostHog cookieless, so there is no browser identity to forward here and
+ * a server-side event could never join the visitor's pageview. The distinct id
+ * is the submission key, which links the report to the row it failed to write
+ * and to nothing else; no person profile is created for it.
+ */
+async function captureWaitlistException(
+  distinctId: string,
+  error: unknown,
+): Promise<void> {
+  const posthog = createPostHogClient();
+  try {
+    posthog.captureException(error, distinctId, {
+      $process_person_profile: false,
+      failure_stage: "destination_delivery",
+    });
+    await posthog.shutdown();
+  } catch {
+    console.error("[waitlist] PostHog exception capture failed");
+  }
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -228,6 +253,7 @@ export async function POST(request: Request): Promise<Response> {
     console.error(
       `[waitlist] ${requestId} delivery via "${destination.name}" failed: ${reason}`,
     );
+    await captureWaitlistException(idempotencyKey || requestId, error);
     return json(
       {
         ok: false,

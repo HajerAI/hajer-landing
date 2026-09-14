@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, JetBrains_Mono } from "next/font/google";
 import { site } from "@/content/site";
 import "./globals.css";
@@ -93,7 +92,6 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full">{children}</body>
-      <GoogleAnalytics gaId="G-PNJNM11W5B" />
     </html>
   );
 }

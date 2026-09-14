@@ -34,9 +34,21 @@ test("repository scope rejects unknown roots and unsafe file forms", async () =>
     async (root: string) => writeFile(path.join(root, "app", "bundle.js.map"), "{}"),
     async (root: string) => writeFile(path.join(root, "app", "data.jsonl"), "{}\n"),
     async (root: string) => writeFile(path.join(root, "app", "bundle.zip"), "not an archive"),
+    // pnpm project: a stray npm lockfile is a sign the wrong installer ran.
+    async (root: string) => writeFile(path.join(root, "package-lock.json"), "{}\n"),
   ]) {
     const root = await fixture();
     await mutate(root);
     await assert.rejects(verify(root));
   }
+});
+
+test("repository scope tolerates local-only files and Next-required root entries", async () => {
+  const root = await fixture();
+  await writeFile(path.join(root, ".env.local"), "SUPABASE_URL=\n");
+  await writeFile(path.join(root, "instrumentation-client.ts"), "export {};\n");
+  await mkdir(path.join(root, ".claude", "skills", "example"), { recursive: true });
+  await writeFile(path.join(root, ".claude", "skills", "example", "SKILL.md"), "# example\n");
+  const result = await verify(root);
+  assert.match(result.stdout, /PASS/);
 });
