@@ -1,9 +1,11 @@
 import posthog from "posthog-js";
 
-import { POSTHOG_HOST, POSTHOG_PROJECT_TOKEN } from "@/lib/posthog-config";
+import { POSTHOG_BROWSER_API_HOST, POSTHOG_PROJECT_TOKEN, POSTHOG_UI_HOST } from "@/lib/posthog-config";
 
 posthog.init(POSTHOG_PROJECT_TOKEN, {
-  api_host: POSTHOG_HOST,
+  // Same-origin path proxied to PostHog by next.config.ts; see lib/posthog-config.ts.
+  api_host: POSTHOG_BROWSER_API_HOST,
+  ui_host: POSTHOG_UI_HOST,
   defaults: "2026-05-30",
   person_profiles: "identified_only",
   // No cookie, no local or session storage, no banner. Visitors are counted

@@ -12,6 +12,7 @@ const config = (await import(
 const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 const instrumentationSource = await read("../instrumentation-client.ts");
 const serverSource = await read("../lib/posthog-server.ts");
+const nextConfigSource = await read("../next.config.ts");
 const layoutSource = await read("../app/layout.tsx");
 const footerSource = await read("../components/sections/Footer.tsx");
 const sharedSource = await read("../components/waitlist/shared.tsx");
@@ -27,6 +28,19 @@ test("PostHog runs cookieless, without replay, from a pinned project config", ()
   assert.match(instrumentationSource, /person_profiles: "identified_only"/);
   assert.doesNotMatch(instrumentationSource, /session_recording|opt_in_capturing|process\.env\.NEXT_PUBLIC_POSTHOG/);
   assert.doesNotMatch(serverSource, /process\.env/);
+});
+
+test("the browser reaches PostHog only through the first-party /ingest proxy", () => {
+  assert.equal(config.POSTHOG_BROWSER_API_HOST, "/ingest");
+  assert.equal(config.POSTHOG_ASSETS_HOST, "https://eu-assets.i.posthog.com");
+  assert.match(instrumentationSource, /api_host: POSTHOG_BROWSER_API_HOST/);
+  assert.match(instrumentationSource, /ui_host: POSTHOG_UI_HOST/);
+  assert.doesNotMatch(instrumentationSource, /api_host: POSTHOG_HOST/);
+  // Static bundles and /array must go to the assets host, the rest to ingestion.
+  assert.match(nextConfigSource, /\/static\/:path\*`,\s*destination: `\$\{POSTHOG_ASSETS_HOST\}\/static\/:path\*`/);
+  assert.match(nextConfigSource, /\/array\/:path\*`,\s*destination: `\$\{POSTHOG_ASSETS_HOST\}\/array\/:path\*`/);
+  assert.match(nextConfigSource, /\/:path\*`,\s*destination: `\$\{POSTHOG_HOST\}\/:path\*`/);
+  assert.match(nextConfigSource, /skipTrailingSlashRedirect: true/);
 });
 
 test("no cookie banner, consent gate, or Google Analytics remains", () => {
