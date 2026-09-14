@@ -23,7 +23,7 @@ const formsSource = await readFile(
   "utf8",
 );
 const routeSource = await readFile(
-  new URL("../app/api/waitlist/route.ts", import.meta.url),
+  new URL("../lib/waitlist/handler.ts", import.meta.url),
   "utf8",
 );
 const followupSource = await readFile(

@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# waitlist lambda bundle (scripts/build-lambda.mjs)
+/dist-lambda/
+
 # production
 /build
 

@@ -16,7 +16,7 @@ const nextConfigSource = await read("../next.config.ts");
 const layoutSource = await read("../app/layout.tsx");
 const footerSource = await read("../components/sections/Footer.tsx");
 const sharedSource = await read("../components/waitlist/shared.tsx");
-const routeSource = await read("../app/api/waitlist/route.ts");
+const routeSource = await read("../lib/waitlist/handler.ts");
 const packageJson = JSON.parse(await read("../package.json")) as {
   dependencies: Record<string, string>;
 };
@@ -36,11 +36,23 @@ test("the browser reaches PostHog only through the first-party /ingest proxy", (
   assert.match(instrumentationSource, /api_host: POSTHOG_BROWSER_API_HOST/);
   assert.match(instrumentationSource, /ui_host: POSTHOG_UI_HOST/);
   assert.doesNotMatch(instrumentationSource, /api_host: POSTHOG_HOST/);
-  // Static bundles and /array must go to the assets host, the rest to ingestion.
+  // In production CloudFront owns the proxy (hajer/infra/modules/static-site); `next dev`
+  // keeps Next's rewrites. Static bundles and /array must go to the assets host, the rest
+  // to ingestion, and the whole block must be gated on the development phase.
+  assert.match(nextConfigSource, /const dev = phase === PHASE_DEVELOPMENT_SERVER/);
+  assert.match(nextConfigSource, /\.\.\.\(dev\s*\?\s*\{\s*async rewrites\(\)/);
   assert.match(nextConfigSource, /\/static\/:path\*`,\s*destination: `\$\{POSTHOG_ASSETS_HOST\}\/static\/:path\*`/);
   assert.match(nextConfigSource, /\/array\/:path\*`,\s*destination: `\$\{POSTHOG_ASSETS_HOST\}\/array\/:path\*`/);
   assert.match(nextConfigSource, /\/:path\*`,\s*destination: `\$\{POSTHOG_HOST\}\/:path\*`/);
   assert.match(nextConfigSource, /skipTrailingSlashRedirect: true/);
+});
+
+test("production builds are a static export laid out for the CloudFront index rewrite", () => {
+  // /privacy must land at out/privacy/index.html: that is the path the viewer-request
+  // function rewrites extensionless URLs to, and the local dev server is the only place
+  // /api/waitlist exists inside Next.
+  assert.match(nextConfigSource, /dev \? \{\} : \{ output: "export", trailingSlash: true \}/);
+  assert.match(nextConfigSource, /source: "\/api\/:path\*",\s*destination: `\$\{waitlistDevServer\}\/api\/:path\*`/);
 });
 
 test("no cookie banner, consent gate, or Google Analytics remains", () => {

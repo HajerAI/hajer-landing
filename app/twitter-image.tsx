@@ -12,6 +12,8 @@ import OpengraphImage, {
   contentType as ogContentType,
 } from "./opengraph-image";
 
+// Rendered once at build time: the site is a static export (next.config.ts).
+export const dynamic = "force-static";
 export const runtime = "nodejs";
 
 export const alt = ogAlt;

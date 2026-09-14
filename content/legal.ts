@@ -114,7 +114,7 @@ export const privacyPolicy: LegalDocument = {
       heading: "Who processes your information",
       paragraphs: ["A small number of service providers run the site on our behalf:"],
       bullets: [
-        "Vercel hosts the website and runs the form’s server code.",
+        "Amazon Web Services hosts the website and runs the form’s server code.",
         "Supabase stores form submissions in a database that only our server can write to.",
         "Google provides Workspace, which sends our email.",
         "PostHog provides cookieless product analytics and error tracking, hosted in the EU.",

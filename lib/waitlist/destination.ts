@@ -220,7 +220,7 @@ function readEnv(name: string): string | undefined {
  * Callers must treat null as a hard failure, never as a silent success.
  */
 export function resolveDestination(): WaitlistDestination | null {
-  // Supabase first: it is the production destination on Vercel.
+  // Supabase first: it is the production destination.
   const supabaseUrl = readEnv("SUPABASE_URL");
   const serviceKey = readEnv("SUPABASE_SERVICE_ROLE_KEY");
   if (supabaseUrl && serviceKey) {

@@ -4,6 +4,9 @@ import { site } from "@/content/site";
 
 // The landing page plus the two legal documents. Section links are same-page
 // anchors, not routes, and /thank-you is a post-submit page marked noindex.
+// Rendered once at build time: the site is a static export (next.config.ts).
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {

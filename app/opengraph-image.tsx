@@ -26,6 +26,8 @@ import { site } from "@/content/site";
  * needed.
  */
 
+// Rendered once at build time: the site is a static export (next.config.ts).
+export const dynamic = "force-static";
 export const runtime = "nodejs";
 
 export const alt = `${site.name} — ${site.tagline} ${site.category}.`;

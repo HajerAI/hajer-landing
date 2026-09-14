@@ -8,6 +8,8 @@ import { ImageResponse } from "next/og";
  * The mark is 10:8; it is scaled uniformly and centred, never stretched.
  */
 
+// Rendered once at build time: the site is a static export (next.config.ts).
+export const dynamic = "force-static";
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 

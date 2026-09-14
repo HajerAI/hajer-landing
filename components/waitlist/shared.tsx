@@ -163,13 +163,26 @@ export type PostResult =
   | { ok: true }
   | { ok: false; message: string; errors?: Record<string, string> };
 
+/**
+ * Hex SHA-256 of the request body. /api/waitlist is a Lambda function URL that
+ * CloudFront signs on our behalf; for a request with a body that signature
+ * needs the payload hash from the client, as x-amz-content-sha256, or the
+ * edge answers 403 before the handler ever runs.
+ */
+async function sha256Hex(body: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(body));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 export async function postWaitlist(
   payload: Record<string, unknown>,
   idempotencyKey: string,
 ): Promise<PostResult> {
+  const body = JSON.stringify(payload);
   const headers: Record<string, string> = {
     "content-type": "application/json",
     "idempotency-key": idempotencyKey,
+    "x-amz-content-sha256": await sha256Hex(body),
   };
 
   let response: Response;
@@ -177,7 +190,7 @@ export async function postWaitlist(
     response = await fetch("/api/waitlist", {
       method: "POST",
       headers,
-      body: JSON.stringify(payload),
+      body,
     });
   } catch {
     return { ok: false, message: SYSTEM_COPY.offline };

@@ -5,7 +5,9 @@
   "scripts": {
     "boundary": "node scripts/verify-repository-scope.mjs",
     "dev": "next dev",
+    "dev:api": "node scripts/build-lambda.mjs && node --env-file-if-exists=.env.local dist-lambda/local.mjs",
     "build": "next build",
+    "build:lambda": "node scripts/build-lambda.mjs",
     "start": "next start",
     "lint": "eslint",
     "test": "node --test --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/*.test.ts"
@@ -18,10 +20,12 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@aws-sdk/client-ssm": "^3.1132.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",

@@ -1,0 +1,97 @@
+# Deploys the site to AWS: the static export to S3, the waitlist handler to Lambda, then a
+# CloudFront invalidation. main → production, develop → develop; workflow_dispatch picks.
+#
+# Everything environment-specific comes from the GitHub environment's variables, printed by
+# `just landing-deploy-vars <env>` in the hajer repo's infra/: AWS_ROLE_ARN, AWS_REGION,
+# S3_BUCKET, CLOUDFRONT_DISTRIBUTION_ID, LAMBDA_FUNCTION_NAME, SITE_URL. The role is assumed
+# through GitHub OIDC and trusts only jobs running in that environment.
+name: Deploy
+
+run-name: Deploy → ${{ inputs.environment || (github.ref_name == 'main' && 'production' || 'develop') }}
+
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options: [develop, production]
+
+permissions:
+  contents: read
+  id-token: write
+
+# Two deploys to one environment would race the S3 sync and the invalidation.
+concurrency:
+  group: deploy-${{ inputs.environment || (github.ref_name == 'main' && 'production' || 'develop') }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: ${{ inputs.environment || (github.ref_name == 'main' && 'production' || 'develop') }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || (github.ref_name == 'main' && 'production' || 'develop') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build the static export
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+        run: pnpm build
+
+      - name: Bundle the waitlist function
+        run: pnpm build:lambda
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Upload the site
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+        run: |
+          set -euo pipefail
+          # Hashed assets first and immutable, so no page ever references a chunk that is not
+          # there yet; everything else revalidates so a deploy is visible at once. Old chunks are
+          # left in place (excluded from --delete) for pages a viewer already has open.
+          aws s3 sync out/_next/static "s3://${S3_BUCKET}/_next/static" \
+            --cache-control "public, max-age=31536000, immutable" --no-progress
+          aws s3 sync out "s3://${S3_BUCKET}" --exclude "_next/static/*" --delete \
+            --cache-control "public, max-age=0, must-revalidate" --no-progress
+          # Next writes its metadata images (/icon, /opengraph-image, …) without an extension,
+          # so the sync could not guess their type; re-upload those with the real one.
+          find out -type f ! -name "*.*" | while read -r file; do
+            aws s3 cp "$file" "s3://${S3_BUCKET}/${file#out/}" \
+              --content-type "$(file --mime-type -b "$file")" \
+              --cache-control "public, max-age=0, must-revalidate" --no-progress
+          done
+
+      - name: Update the waitlist function
+        env:
+          LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
+        run: |
+          set -euo pipefail
+          aws lambda update-function-code --function-name "$LAMBDA_FUNCTION_NAME" \
+            --zip-file fileb://dist-lambda/waitlist.zip --no-cli-pager > /dev/null
+          aws lambda wait function-updated --function-name "$LAMBDA_FUNCTION_NAME"
+
+      - name: Invalidate CloudFront
+        env:
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/*" --no-cli-pager > /dev/null
+
+      - env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: echo "### Deployed ${SITE_URL} (\`${GITHUB_SHA::8}\`)" >> "$GITHUB_STEP_SUMMARY"

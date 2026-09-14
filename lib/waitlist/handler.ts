@@ -1,22 +1,24 @@
 import { createHash, randomUUID } from "node:crypto";
 
-import { createPostHogClient } from "@/lib/posthog-server";
-import { resolveDestination, type DeliveryMeta } from "@/lib/waitlist/destination";
-import { resolveFounderFollowupSender } from "@/lib/waitlist/founder-followup";
-import { checkRateLimit, hashIdentifier } from "@/lib/waitlist/rate-limit";
+import { createPostHogClient } from "../posthog-server";
+import { resolveDestination, type DeliveryMeta } from "./destination";
+import { resolveFounderFollowupSender } from "./founder-followup";
+import { checkRateLimit, hashIdentifier } from "./rate-limit";
 import {
   HONEYPOT_FIELD,
   hasMigrationDetails,
   validateSubmission,
   type WaitlistSubmission,
-} from "@/lib/waitlist/schema";
-
-export const runtime = "nodejs";
+} from "./schema";
 
 /**
- * WAITLIST INTAKE.
+ * WAITLIST INTAKE — POST /api/waitlist.
  *
- * The single rule this route exists to enforce: never tell a person they are
+ * Web-standard Request in, Response out, no framework. The site is a static
+ * export, so this does not run inside Next: lambda/waitlist/index.ts wraps it
+ * for AWS Lambda behind CloudFront, lambda/waitlist/local.ts for `next dev`.
+ *
+ * The single rule this handler exists to enforce: never tell a person they are
  * on the list unless their address actually reached a durable destination.
  * Every failure path below returns ok:false with a code the client renders as
  * a failure — there is no branch that fakes success.
@@ -32,7 +34,7 @@ export const runtime = "nodejs";
  * caller supplies the outcome ("Your email was not recorded."), so these
  * compose after any heading without repeating it.
  */
-const MESSAGES = {
+export const MESSAGES = {
   invalidJson: "We could not read that submission. Please try again.",
   invalidSubmission: "Check the highlighted field and try again.",
   rateLimited: "Too many attempts from this connection. Please try again shortly.",

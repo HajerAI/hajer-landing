@@ -8,6 +8,8 @@ import { ImageResponse } from "next/og";
  * Margins are generous because iOS masks the corners of this square.
  */
 
+// Rendered once at build time: the site is a static export (next.config.ts).
+export const dynamic = "force-static";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 

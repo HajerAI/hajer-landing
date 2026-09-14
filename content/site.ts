@@ -12,5 +12,7 @@ export const site = {
   tagline: "Nobody maintains their evals. Hajer does.",
   description:
     "Hajer is an agent that keeps your evals and harnesses in step with your product—adding cases for what changed, retiring what’s dead, and telling you when something actually broke.",
-  url: "https://hajer.ai",
+  // The canonical origin. Deploys of other environments (develop-landing.hajer.ai) set
+  // NEXT_PUBLIC_SITE_URL at build time so metadata and the sitemap point at themselves.
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://hajer.ai",
 } as const;
