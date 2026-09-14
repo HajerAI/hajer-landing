@@ -19,17 +19,17 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   alternates: { canonical: "/" },
   title: {
-    default: `${site.name} — ${site.category}`,
+    default: site.title,
     template: `%s — ${site.name}`,
   },
   description: site.description,
   applicationName: site.name,
   keywords: [
-    "AI model migration",
-    "model migration assessment",
+    "LLM evals",
+    "eval maintenance",
+    "agent harness",
     "AI evaluation",
-    "production AI risk",
-    "engineering decision support",
+    "LLM testing",
   ],
   openGraph: {
     type: "website",

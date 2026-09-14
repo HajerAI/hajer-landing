@@ -41,10 +41,10 @@ export const privacyPolicy: LegalDocument = {
   slug: "privacy",
   title: "Privacy Policy",
   description:
-    "How Hajer handles the information you share through hajer.ai and its assessment-request form.",
+    "How Hajer handles the information you share through hajer.ai and its early-access form.",
   effectiveDate: LEGAL_EFFECTIVE_DATE,
   intro: [
-    "Hajer operates hajer.ai and the assessment-request form on it. This policy explains what information the site collects, why, who processes it, and the choices you have. It covers the website and the form only. An assessment engagement is governed by a separate written agreement.",
+    "Hajer operates hajer.ai and the early-access form on it. This policy explains what information the site collects, why, who processes it, and the choices you have. It covers the website and the form only. Any use of Hajer itself is governed by a separate written agreement.",
     "Questions or requests about your information go to hello@hajer.ai.",
   ],
   sections: [
@@ -52,7 +52,7 @@ export const privacyPolicy: LegalDocument = {
       heading: "Information you give us",
       paragraphs: [
         "The request form asks for a work email address. Addresses from personal email providers are rejected, and that check runs both in your browser and on our server.",
-        "Everything else on the form is optional: company, role, the kind of workflow evidence you have available, the model you run today, the candidate model you are evaluating, your decision timing, and whether you are open to a design-partner assessment.",
+        "Everything else on the form is optional: company, role, what your evals look like today, the models you run in production, the models you are considering, how urgent the change is, and whether you are open to being a design partner.",
         "The form states: “By joining, you agree to receive Hajer product updates. You can unsubscribe at any time.” Submitting the form is how you give that consent.",
         "Please do not put confidential information, credentials, production data, or other people’s personal data into the form. Those belong in a scoped engagement, not a web form.",
       ],
@@ -90,7 +90,7 @@ export const privacyPolicy: LegalDocument = {
       heading: "How we use the information",
       paragraphs: ["We use what you share and what the site records for these purposes:"],
       bullets: [
-        "To respond to your request and understand whether an assessment fits.",
+        "To respond to your request and understand whether Hajer fits your setup.",
         "To send one follow-up email after your address is stored.",
         "To send occasional product updates, which you agreed to when you submitted the form.",
         "To operate and protect the site: rate limiting, abuse prevention, and error tracking.",
@@ -107,7 +107,7 @@ export const privacyPolicy: LegalDocument = {
     {
       heading: "Legal bases",
       paragraphs: [
-        "Where the GDPR or UK GDPR applies, we rely on your consent for product updates; on our legitimate interest in answering inbound requests, keeping the site secure, and measuring how the site is used with the cookieless, non-identifying analytics described above; and, when scoping an assessment, on taking steps at your request before entering a contract.",
+        "Where the GDPR or UK GDPR applies, we rely on your consent for product updates; on our legitimate interest in answering inbound requests, keeping the site secure, and measuring how the site is used with the cookieless, non-identifying analytics described above; and, when scoping an engagement, on taking steps at your request before entering a contract.",
       ],
     },
     {
@@ -171,10 +171,10 @@ export const termsOfService: LegalDocument = {
   slug: "terms",
   title: "Terms of Service",
   description:
-    "The terms that apply when you use hajer.ai or submit an assessment request.",
+    "The terms that apply when you use hajer.ai or request early access.",
   effectiveDate: LEGAL_EFFECTIVE_DATE,
   intro: [
-    "These terms are an agreement between you and Hajer, the operator of hajer.ai. They cover your use of the site and of the assessment-request form. Read them together with the Privacy Policy, which explains how information you share is handled.",
+    "These terms are an agreement between you and Hajer, the operator of hajer.ai. They cover your use of the site and of the early-access form. Read them together with the Privacy Policy, which explains how information you share is handled.",
   ],
   sections: [
     {
@@ -187,8 +187,8 @@ export const termsOfService: LegalDocument = {
     {
       heading: "What the site is",
       paragraphs: [
-        "The site describes Hajer’s model-migration assessment and lets you request one. A submission tells us you are interested; it does not create an engagement, and Hajer is not obliged to respond to or accept any request.",
-        "Any assessment Hajer performs is governed by a separate written agreement. Nothing on the site is an offer, a quotation, or a guarantee of availability, timing, scope, or price.",
+        "The site describes Hajer, an agent that maintains evals and harnesses, and lets you request early access. A submission tells us you are interested; it does not create an engagement or grant access, and Hajer is not obliged to respond to or accept any request.",
+        "Any use of Hajer itself is governed by a separate written agreement. Nothing on the site is an offer, a quotation, or a guarantee of availability, timing, scope, or price.",
       ],
     },
     {
@@ -209,8 +209,8 @@ export const termsOfService: LegalDocument = {
     {
       heading: "Illustrative content",
       paragraphs: [
-        "The change patterns, the assessment replay, and the decision-record example on the site are illustrations. They are not customer results, benchmarks, or predictions about your system.",
-        "The site is not engineering, legal, or compliance advice. Your team keeps full responsibility for choosing a model, deploying it, and deciding whether to release.",
+        "Any examples on the site are illustrations. They are not customer results, benchmarks, or predictions about your system or your evals.",
+        "The site is not engineering, legal, or compliance advice. Your team keeps full responsibility for what you test, what you deploy, and what you release.",
       ],
     },
     {
@@ -240,7 +240,7 @@ export const termsOfService: LegalDocument = {
       heading: "Disclaimers",
       paragraphs: [
         "The site is provided as is and as available. To the extent the law allows, Hajer makes no warranty that the site is accurate, complete, uninterrupted, or free of errors.",
-        "No assessment can eliminate the risk of a model migration. Testing cannot prove the absence of untested failures, and nothing on this site claims otherwise.",
+        "No eval suite, maintained or otherwise, can eliminate the risk of shipping a change. Testing cannot prove the absence of untested failures, and nothing on this site claims otherwise.",
       ],
     },
     {

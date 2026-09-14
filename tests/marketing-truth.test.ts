@@ -22,10 +22,6 @@ const formsSource = await readFile(
   new URL("../components/waitlist/WaitlistForms.tsx", import.meta.url),
   "utf8",
 );
-const runwaySource = await readFile(
-  new URL("../components/motion/runway-band.tsx", import.meta.url),
-  "utf8",
-);
 const routeSource = await readFile(
   new URL("../app/api/waitlist/route.ts", import.meta.url),
   "utf8",
@@ -35,60 +31,32 @@ const followupSource = await readFile(
   "utf8",
 );
 
-test("the rendered page keeps the Replit visual system with the bounded assessment story", () => {
-  for (const section of [
-    "SiteNav",
-    "Hero",
-    "Problem",
-    "ChangeExplorer",
-    "Building",
-    "Deliverables",
-    "Authority",
-    "Verdict",
-    "Status",
-    "FAQ",
-    "Waitlist",
-    "SiteFooter",
-  ]) {
+test("the rendered page is the hero and footer with the eval-maintenance story", () => {
+  for (const section of ["SiteNav", "Hero", "SiteFooter"]) {
     assert.match(pageSource, new RegExp(section));
   }
-  assert.equal(
-    copy.hero.headline,
-    "Don’t switch AI models blind. See what breaks first.",
-  );
-  assert.equal(copy.hero.headlineLead, "Don’t switch AI models\u00a0blind.");
-  assert.equal(copy.hero.headlineAction, "See what breaks first.");
+  assert.equal(copy.hero.headline, "Nobody maintains their evals. Hajer does.");
+  assert.equal(copy.hero.headlineLead, "Nobody maintains their\u00a0evals.");
+  assert.equal(copy.hero.headlineAction, "Hajer does.");
   assert.match(heroSource, /headlineLead/);
   assert.match(heroSource, /lg:whitespace-nowrap/);
   assert.match(heroSource, /\{" "\}/);
   assert.match(heroSource, /text-\[clamp\(2\.75rem,12\.3vw,3rem\)\]/);
-  assert.match(copy.hero.microcopy, /founder-led assessments/i);
-  assert.equal(copy.runway.zones.current, "GPT-5");
-  assert.equal(copy.runway.zones.candidate, "Claude Sonnet 4.5");
-  assert.equal(copy.deliverables.items.length, 4);
-  assert.match(copy.deliverables.authority, /team retains authority/i);
+  assert.match(copy.hero.body, /evals and harnesses/i);
 });
 
-test("contact and assessment-request copy remain the visible authority", () => {
+test("the hero is the whole page: no illustrative replay, no section anchors", () => {
+  assert.doesNotMatch(heroSource, /RunwayBand|runway/);
+  assert.doesNotMatch(pageSource, /Problem|ChangeExplorer|Deliverables|FAQ|Waitlist \/>/);
+  assert.equal("runway" in copy, false);
+});
+
+test("contact and early-access copy remain the visible authority", () => {
   assert.equal(copy.footer.email, "hello@hajer.ai");
-  assert.equal(copy.nav.cta, "Request Assessment");
-  assert.match(copy.waitlist.submitLabel, /request an assessment/i);
-  assert.match(copy.status.intro, /engineering leaders/i);
+  assert.equal(copy.nav.cta, "Get early access");
+  assert.match(copy.waitlist.submitLabel, /early access/i);
   assert.doesNotMatch(JSON.stringify(copy), /prelaunch|what does not exist|not yet available/i);
-  assert.equal(copy.authority.hajer.length, copy.authority.customer.length);
-  assert.equal(copy.status.focus.length, copy.status.fit.length);
-});
-
-test("Claude Sonnet owns the orange lane and concerning changes stop at Hajer", () => {
-  assert.match(runwaySource, /bg-vermilion/);
-  assert.match(runwaySource, /\{runway\.zones\.candidate\}/);
-  assert.match(runwaySource, /rw-packet-blocked/);
-  assert.match(runwaySource, /--rw-blocked-bg:#ff5a36/);
-  assert.match(runwaySource, /text-white/);
-});
-
-test("the illustrative replay is removed from the mobile layout", () => {
-  assert.match(heroSource, /className="hidden md:block"[\s\S]*<RunwayBand \/>/);
+  assert.doesNotMatch(JSON.stringify(copy), /assessment|migration/i);
 });
 
 test("Next retains analytics, durable capture, and founder follow-up mechanics", () => {

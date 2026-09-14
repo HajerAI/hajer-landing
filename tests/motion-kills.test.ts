@@ -5,15 +5,13 @@ import test from "node:test";
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
-test("the active stylesheet uses one left-to-right assessment motion system", () => {
-  assert.match(css, /@keyframes rw-packet-success/);
-  assert.match(css, /@keyframes rw-packet-blocked/);
-  assert.doesNotMatch(css, /@keyframes rw-from-current/);
-  assert.doesNotMatch(page, /ScrollSpine/);
+test("the stylesheet carries no decorative motion system", () => {
+  assert.doesNotMatch(css, /@keyframes rw-|\.runway-|\.rw-packet/);
+  assert.doesNotMatch(css, /@keyframes accordion-|\.accordion-content/);
+  assert.doesNotMatch(css, /\.reveal\s*\{/);
+  assert.doesNotMatch(page, /ScrollSpine|RunwayBand/);
 });
 
-test("assessment replay settles under reduced motion", () => {
-  assert.match(css, /prefers-reduced-motion: reduce/);
-  assert.match(css, /\.rw-packet-success,[\s\S]*\.rw-packet-blocked[\s\S]*animation: none !important/);
-  assert.doesNotMatch(css, /\.reveal\s*\{/);
+test("smooth scrolling still yields to reduced motion", () => {
+  assert.match(css, /prefers-reduced-motion: reduce[\s\S]*scroll-behavior: auto/);
 });

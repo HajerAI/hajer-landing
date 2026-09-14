@@ -7,10 +7,10 @@
  */
 export const site = {
   name: "Hajer",
-  category: "Independent Model-Migration Assessment",
-  title: "Hajer — Independent Model-Migration Assessment",
-  tagline: "See what may change before you switch AI models.",
+  category: "Eval & Harness Maintenance Agent",
+  title: "Hajer — The agent that maintains your evals and harnesses",
+  tagline: "Nobody maintains their evals. Hajer does.",
   description:
-    "Hajer gives engineering leaders an independent, evidence-backed assessment of one production AI model migration.",
+    "Hajer is an agent that keeps your evals and harnesses in step with your product—adding cases for what changed, retiring what’s dead, and telling you when something actually broke.",
   url: "https://hajer.ai",
 } as const;

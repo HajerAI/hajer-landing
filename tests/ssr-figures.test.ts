@@ -20,7 +20,7 @@ async function loadHtml(): Promise<{ html: string; source: string } | null> {
 const page = await loadHtml();
 
 test(
-  "SSR HTML carries the public deliverables and customer authority",
+  "SSR HTML carries the hero headline, body, and early-access form",
   {
     skip: page
       ? false
@@ -28,12 +28,10 @@ test(
   },
   () => {
     const { html } = page!;
-    const items = html.match(/data-deliverable="true"/g) ?? [];
 
-    assert.equal(items.length, 4, "expected four public deliverables");
-    assert.ok(html.includes("data-deliverables"), "deliverables section is missing");
-    assert.ok(html.includes("Scoped findings"), "scoped findings are missing");
-    assert.ok(html.includes("Explicit limitations"), "limitations are missing");
-    assert.ok(html.includes("Your team retains authority"), "customer authority is missing");
+    assert.ok(html.includes("Nobody maintains their"), "hero headline is missing");
+    assert.ok(html.includes("Hajer does."), "hero headline is missing");
+    assert.ok(html.includes("green, confident, and wrong."), "hero body is missing");
+    assert.ok(html.includes('type="email"'), "inline early-access form is missing");
   },
 );

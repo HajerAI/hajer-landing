@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { HajerMark } from "@/components/brand/HajerMark";
-import { footer, nav } from "@/content/copy";
+import { footer } from "@/content/copy";
 
 const LEGAL_LINK_CLASS =
   "inline-flex min-h-11 items-center transition-colors hover:text-vermilion md:min-h-0";
@@ -11,7 +11,7 @@ export function SiteFooter() {
     <footer id="footer" className="on-paper border-t border-hairline">
       <div className="shell py-16 md:py-20">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-7">
+          <div className="md:col-span-8">
             <HajerMark
               tone="ink"
               className="block h-24 w-32 md:h-32 md:w-40"
@@ -25,25 +25,7 @@ export function SiteFooter() {
             </p>
           </div>
 
-          <div className="md:col-span-2 md:pt-2">
-            <p className="mb-4 font-mono text-xs uppercase tracking-widest text-white">
-              {footer.exploreLabel}
-            </p>
-            <ul className="space-y-2.5">
-              {nav.links.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    className="inline-flex min-h-11 items-center text-sm text-white transition-colors hover:text-vermilion"
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="md:col-span-3 md:pt-2">
+          <div className="md:col-span-4 md:pt-2">
             <p className="mb-4 font-mono text-xs uppercase tracking-widest text-white">
               {footer.contactLabel}
             </p>
