@@ -68,7 +68,7 @@ export const footer = {
   tagline: "Nobody maintains their evals. Hajer does.",
   category: "Eval & Harness Maintenance Agent",
   contactLabel: "Contact",
-  email: "hello@hajer.ai",
+  email: "omar@hajer.ai",
   emailNote: "Early access, partnerships, and strong opinions about evals.",
   availability: "Built by people who also stopped maintaining their evals",
   copyright: `© ${new Date().getFullYear()} Hajer. All rights reserved.`,

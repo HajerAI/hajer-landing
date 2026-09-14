@@ -516,7 +516,7 @@ test("Gmail message carries the founder identity and a UTF-8 plain-text body", (
   const message = followup.buildFounderFollowupMessage(
     "ada@example.com",
     "omar@hajer.ai",
-    "hello@hajer.ai",
+    "omar@hajer.ai",
   );
 
   assert.match(message, /^From: Omar <omar@hajer\.ai>\r\n/);

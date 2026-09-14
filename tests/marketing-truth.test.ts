@@ -52,7 +52,7 @@ test("the hero is the whole page: no illustrative replay, no section anchors", (
 });
 
 test("contact and early-access copy remain the visible authority", () => {
-  assert.equal(copy.footer.email, "hello@hajer.ai");
+  assert.equal(copy.footer.email, "omar@hajer.ai");
   assert.equal(copy.nav.cta, "Get early access");
   assert.match(copy.waitlist.submitLabel, /early access/i);
   assert.doesNotMatch(JSON.stringify(copy), /prelaunch|what does not exist|not yet available/i);

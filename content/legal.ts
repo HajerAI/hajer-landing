@@ -13,7 +13,7 @@
  * are settled, not placeholders to be filled by hand.
  */
 
-export const LEGAL_CONTACT = "hello@hajer.ai";
+export const LEGAL_CONTACT = "omar@hajer.ai";
 export const LEGAL_EFFECTIVE_DATE = "2026-09-14";
 
 export type LegalLink = { label: string; href: string };
@@ -45,7 +45,7 @@ export const privacyPolicy: LegalDocument = {
   effectiveDate: LEGAL_EFFECTIVE_DATE,
   intro: [
     "Hajer operates hajer.ai and the early-access form on it. This policy explains what information the site collects, why, who processes it, and the choices you have. It covers the website and the form only. Any use of Hajer itself is governed by a separate written agreement.",
-    "Questions or requests about your information go to hello@hajer.ai.",
+    "Questions or requests about your information go to omar@hajer.ai.",
   ],
   sections: [
     {
@@ -83,12 +83,17 @@ export const privacyPolicy: LegalDocument = {
         "The only thing the site keeps in your browser is a session-only record of your own submission, so the two forms can share it; it is deleted when the tab closes. We do not respond to Do Not Track signals. Blocking analytics with a browser extension or a content blocker works as expected: the site does not depend on it.",
       ],
       links: [
-        { label: "PostHog Privacy Policy", href: "https://posthog.com/privacy" },
+        {
+          label: "PostHog Privacy Policy",
+          href: "https://posthog.com/privacy",
+        },
       ],
     },
     {
       heading: "How we use the information",
-      paragraphs: ["We use what you share and what the site records for these purposes:"],
+      paragraphs: [
+        "We use what you share and what the site records for these purposes:",
+      ],
       bullets: [
         "To respond to your request and understand whether Hajer fits your setup.",
         "To send one follow-up email after your address is stored.",
@@ -100,8 +105,8 @@ export const privacyPolicy: LegalDocument = {
     {
       heading: "Email from Hajer",
       paragraphs: [
-        "After your address is stored, you receive one plain-text follow-up from omar@hajer.ai, sent through Google Workspace, with replies going to hello@hajer.ai. Adding details later does not trigger a second copy.",
-        "Product updates are occasional. To stop receiving them, reply to any message or write to hello@hajer.ai and we will remove you from the list. There is no automated unsubscribe link; a person handles each request.",
+        "After your address is stored, you receive one plain-text follow-up from omar@hajer.ai, sent through Google Workspace, with replies going to omar@hajer.ai. Adding details later does not trigger a second copy.",
+        "Product updates are occasional. To stop receiving them, reply to any message or write to omar@hajer.ai and we will remove you from the list. There is no automated unsubscribe link; a person handles each request.",
       ],
     },
     {
@@ -112,7 +117,9 @@ export const privacyPolicy: LegalDocument = {
     },
     {
       heading: "Who processes your information",
-      paragraphs: ["A small number of service providers run the site on our behalf:"],
+      paragraphs: [
+        "A small number of service providers run the site on our behalf:",
+      ],
       bullets: [
         "Amazon Web Services hosts the website and runs the form’s server code.",
         "Supabase stores form submissions in a database that only our server can write to.",
@@ -145,7 +152,7 @@ export const privacyPolicy: LegalDocument = {
       heading: "Your rights",
       paragraphs: [
         "Depending on where you live, you may have the right to access the information we hold about you, correct it, delete it, restrict or object to how we use it, receive a copy in a portable format, and withdraw consent you gave earlier. If you are in the EU or the UK, you can also complain to your data-protection authority. California residents have the right to know what we collect, to delete it, to correct it, and not to be treated differently for exercising those rights. We do not sell personal information.",
-        "To exercise any of these, email hello@hajer.ai. We may ask you to confirm the request from the address on file, and we respond within the time the applicable law allows.",
+        "To exercise any of these, email omar@hajer.ai. We may ask you to confirm the request from the address on file, and we respond within the time the applicable law allows.",
       ],
     },
     {
@@ -162,7 +169,7 @@ export const privacyPolicy: LegalDocument = {
     },
     {
       heading: "Contact",
-      paragraphs: ["Hajer, hello@hajer.ai."],
+      paragraphs: ["Hajer, omar@hajer.ai."],
     },
   ],
 };
@@ -282,7 +289,7 @@ export const termsOfService: LegalDocument = {
     },
     {
       heading: "Contact",
-      paragraphs: ["Hajer, hello@hajer.ai."],
+      paragraphs: ["Hajer, omar@hajer.ai."],
     },
   ],
 };

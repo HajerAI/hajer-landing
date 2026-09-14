@@ -11,11 +11,11 @@ Omar here. Thanks for your interest in Hajer.
 
 I received your request. We are still early and reviewing requests individually as we learn where Hajer can be most useful. We will be in touch as things develop.
 
-In the meantime, if you have any questions, reply to this email or reach us at hello@hajer.ai.
+In the meantime, if you have any questions, reply to this email or reach us at omar@hajer.ai.
 
 Omar
 Founder, Hajer
-hello@hajer.ai`,
+omar@hajer.ai`,
 } as const;
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -171,6 +171,6 @@ export function resolveFounderFollowupSender(): FounderFollowupSender | null {
     clientSecret: config.clientSecret!,
     refreshToken: config.refreshToken!,
     from: config.from ?? "omar@hajer.ai",
-    replyTo: config.replyTo ?? "hello@hajer.ai",
+    replyTo: config.replyTo ?? "omar@hajer.ai",
   });
 }
