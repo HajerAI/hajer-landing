@@ -505,7 +505,7 @@ test("founder follow-up clearly confirms receipt and next steps", () => {
   assert.match(body, /I received your request/i);
   assert.match(body, /reviewing requests individually/i);
   assert.match(body, /will be in touch/i);
-  assert.match(body, /hello@hajer\.ai/i);
+  assert.match(body, /omar@hajer\.ai/i);
   assert.doesNotMatch(`${subject}\n${body}`, /[—–]|waitlist/i);
   assert.doesNotMatch(body, /prelaunch|not as software/i);
   assert.doesNotMatch(body, /pricing|timeline|packet|certif(?:y|ied|ication)/i);
@@ -521,7 +521,7 @@ test("Gmail message carries the founder identity and a UTF-8 plain-text body", (
 
   assert.match(message, /^From: Omar <omar@hajer\.ai>\r\n/);
   assert.match(message, /\r\nTo: <ada@example\.com>\r\n/);
-  assert.match(message, /\r\nReply-To: hello@hajer\.ai\r\n/);
+  assert.match(message, /\r\nReply-To: omar@hajer\.ai\r\n/);
   assert.match(message, /Content-Type: text\/plain; charset="UTF-8"/);
 
   const encodedBody = message.split("\r\n\r\n")[1]!.replace(/\r\n/g, "");
