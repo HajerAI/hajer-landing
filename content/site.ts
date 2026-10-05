@@ -15,4 +15,7 @@ export const site = {
   // The canonical origin. Deploys of other environments (develop-landing.hajer.ai) set
   // NEXT_PUBLIC_SITE_URL at build time so metadata and the sitemap point at themselves.
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://hajer.ai",
+  // Official profiles (LinkedIn, X, GitHub, …) as absolute URLs. Emitted as JSON-LD `sameAs`
+  // only when non-empty; list a profile here only once it exists and is Hajer's.
+  sameAs: [] as readonly string[],
 } as const;

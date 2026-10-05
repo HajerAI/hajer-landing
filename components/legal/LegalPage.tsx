@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import {
+  alt as ogAlt,
+  contentType as ogContentType,
+  size as ogSize,
+} from "@/app/opengraph-image";
 import { SiteFooter } from "@/components/sections/Footer";
 import { SiteNav } from "@/components/sections/SiteNav";
 import { SkipLink } from "@/components/sections/SkipLink";
@@ -60,13 +65,23 @@ export function legalMetadata(doc: LegalDocument): Metadata {
     title: doc.title,
     description: doc.description,
     alternates: { canonical: path },
-    // A child `openGraph` replaces the root's entirely, so it is spelled out.
+    // A child `openGraph` replaces the root's entirely, including the image
+    // app/opengraph-image.tsx would otherwise supply, so it is spelled out.
     openGraph: {
       type: "website",
       url: path,
       siteName: site.name,
       title: `${doc.title} — ${site.name}`,
       description: doc.description,
+      images: [
+        {
+          url: "/opengraph-image",
+          width: ogSize.width,
+          height: ogSize.height,
+          alt: ogAlt,
+          type: ogContentType,
+        },
+      ],
     },
   };
 }
