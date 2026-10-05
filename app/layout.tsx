@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
+import { footer } from "@/content/copy";
 import { site } from "@/content/site";
+import { structuredData } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -56,26 +58,7 @@ export const viewport: Viewport = {
  * the page: no ratings, no reviews, no offers, no launch date — Organization
  * and WebSite only, which assert existence and identity, nothing more.
  */
-const JSON_LD = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": `${site.url}/#org`,
-      name: site.name,
-      url: site.url,
-      description: site.description,
-      slogan: site.tagline,
-    },
-    {
-      "@type": "WebSite",
-      "@id": `${site.url}/#site`,
-      url: site.url,
-      name: site.name,
-      publisher: { "@id": `${site.url}/#org` },
-    },
-  ],
-} as const;
+const JSON_LD = structuredData(site, footer.email);
 
 export default function RootLayout({
   children,
